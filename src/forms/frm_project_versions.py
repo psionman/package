@@ -1,0 +1,273 @@
+
+"""ProjectVersionsFrame  for Package build."""
+import os
+import tkinter as tk
+from tkinter import ttk, filedialog, messagebox
+from pathlib import Path
+
+import psiutils as ps
+from psiutils.constants import PAD
+from psiutils.buttons import ButtonFrame, Button
+from psiutils.utilities import window_resize, geometry
+
+from projects import Project, save_projects
+from config import get_config
+from compare import compare
+import text
+
+from forms.frm_compare import CompareFrame
+from forms.frm_build import BuildFrame
+
+FRAME_TITLE = 'Project compare versions'
+
+DEFAULT_DEV_DIR = str(Path(Path.home(), '.pyenv', 'versions'))
+DEFAULT_PROJECT_DIR = str(Path(Path.home(), 'projects'))
+
+VERSION = 5
+PYTHON_VERSION = 7
+PROJECT = 9
+
+
+class ProjectVersionsFrame():
+    def __init__(
+            self,
+            parent,
+            mode: int,
+            project: Project = None,
+            refresh: bool = False) -> None:
+        self.root = tk.Toplevel(parent.root)
+        self.parent = parent
+        self.config = get_config()
+        self.mode = mode
+        self.project = project
+        self.projects = parent.projects
+        self.save_button = None
+        self.versions_frame = None
+
+        if project.name not in self.config.project_envs:
+            refresh = True
+        project.dev_versions: list = project.get_versions(refresh)
+
+        self.status = ps.NULL
+
+        if not project:
+            project = Project()
+            project.dev_dir = DEFAULT_DEV_DIR
+            project.project_dir = DEFAULT_PROJECT_DIR
+        self.project = project
+
+        # tk variables
+        self.project_name = tk.StringVar(value=project.name)
+        self.dev_dir = tk.StringVar(value=project.dev_dir)
+        self.project_dir = tk.StringVar(value=project.project_dir)
+        self.project_version = tk.StringVar(value=self.project.project_version)
+        self.version = tk.StringVar()
+
+        # Trace
+        self.project_name.trace_add('write', self._values_changed)
+        self.dev_dir.trace_add('write', self._values_changed)
+        self.project_dir.trace_add('write', self._values_changed)
+        self.version.trace_add('write', self._values_changed)
+
+        self.show()
+
+        self._populate_versions_frame()
+
+    def show(self) -> None:
+        root = self.root
+        root.geometry(geometry(self.config, __file__))
+        root.title(FRAME_TITLE)
+        root.transient(self.parent.root)
+        root.bind('<Control-x>', self.dismiss)
+        root.bind('<Configure>',
+                  lambda event, arg=None: window_resize(self, __file__))
+
+        root.rowconfigure(0, weight=1)
+        root.columnconfigure(0, weight=1)
+
+        main_frame = self._main_frame(root)
+        main_frame.grid(row=0, column=0, sticky=tk.NSEW, padx=PAD, pady=PAD)
+
+        sizegrip = ttk.Sizegrip(root)
+        sizegrip.grid(sticky=tk.SE)
+
+    def _main_frame(self, master: tk.Frame) -> ttk.Frame:
+        frame = ttk.Frame(master)
+        frame.rowconfigure(8, weight=1)
+        frame.columnconfigure(2, weight=1)
+
+        label = ttk.Label(frame, text='Project name')
+        label.grid(row=0, column=0, sticky=tk.E, pady=PAD)
+
+        state = 'readonly' if self.mode == ps.EDIT else 'normal'
+        entry = ttk.Entry(frame, textvariable=self.project_name, state=state)
+        entry.grid(row=0, column=1, sticky=tk.EW, padx=PAD)
+        entry.focus_set()
+
+        label = ttk.Label(frame, text='(Used to find dirs in virtual envs)')
+        label.grid(row=1, column=1, sticky=tk.W, pady=0)
+
+        label = ttk.Label(frame, text='Current_version')
+        label.grid(row=2, column=0, sticky=tk.E, pady=PAD)
+
+        entry = ttk.Entry(
+            frame, textvariable=self.project_version, state='readonly')
+        entry.grid(row=2, column=1, sticky=tk.EW, padx=PAD)
+
+        label = ttk.Label(frame, text='Project dir')
+        label.grid(row=3, column=0, sticky=tk.E, pady=PAD)
+
+        entry = ttk.Entry(
+            frame, textvariable=self.project_dir, state='readonly')
+        entry.grid(row=3, column=1, columnspan=2, padx=PAD, sticky=tk.EW)
+
+        label = ttk.Label(frame, text='Development version')
+        label.grid(row=4, column=1, sticky=tk.W, pady=PAD)
+
+        self.versions_frame = self._versions_frame(frame)
+        self.versions_frame.grid(row=5, column=1)
+
+        self.button_frame = self._button_frame(frame)
+        self.button_frame.grid(row=0, column=4, rowspan=9,
+                               sticky=tk.NS, padx=PAD, pady=PAD)
+        return frame
+
+    def _versions_frame(self, master: tk.Frame) -> tk.Frame:
+        frame = ttk.Frame(master)
+        return frame
+
+    def _button_frame(self, master: tk.Frame) -> tk.Frame:
+        frame = ButtonFrame(master, tk.VERTICAL)
+        self.save_button = Button(
+                frame,
+                text=text.SAVE,
+                command=self._save,
+                underline=0,
+                dimmable=True)
+        frame.buttons = [
+            self.save_button,
+            Button(
+                frame,
+                text=text.COMPARE,
+                command=self._compare_project,
+                underline=0,
+                dimmable=True),
+            Button(
+                frame,
+                text=text.BUILD,
+                command=self._build_project,
+                underline=0,
+                dimmable=True),
+            Button(
+                frame,
+                text=text.EXIT,
+                command=self.dismiss,
+                sticky=tk.S,
+                underline=1),
+        ]
+        frame.enable(False)
+        return frame
+
+    def _populate_versions_frame(self) -> None:
+        versions = self.project.dev_versions
+        for row, name in enumerate(sorted(list(versions))):
+            version = versions[name]
+            style = ''
+            (missing, mismatches) = compare(self.project.project_dir,
+                                            version.dir)
+            style = ''
+            mismatch_str = ''
+            style = 'green-fg.TRadiobutton'
+            missing_files = []
+            for count, item in enumerate(missing):
+                if count < 5:
+                    if item[0]:
+                        missing_files.append(item[0])
+
+                    if item[1]:
+                        missing_files.append(item[1])
+
+            if missing or mismatches:
+                style = 'red-fg.TRadiobutton'
+                # style.config('width', 500)
+                if '_version.py' in mismatches:
+                    mismatches.remove('_version.py')
+                mismatch_str = ' '.join(mismatches + missing_files)
+                if len(mismatch_str) > 50:
+                    mismatch_str = f'{mismatch_str[:50]} ...'
+            # if version.version != self.project.project_version:
+            #     style = ''
+            display_text = (f'{name} : ({version.version}) '
+                            f'{mismatch_str}')
+            button = ttk.Radiobutton(
+                self.versions_frame,
+                text=display_text,
+                variable=self.version,
+                value=version.dir,
+                style=style,
+            )
+            button.grid(row=row, column=0, sticky=tk.W)
+
+    def _get_dev_dir(self, *args) -> None:
+        if directory := filedialog.askdirectory(
+                initialdir=self.dev_dir.get(),
+                parent=self.root,):
+            self.dev_dir.set(directory)
+            self.project.dev_dir = directory
+
+    def _values_changed(self, *args) -> None:
+        enable = bool(self.project_name.get())
+        self.button_frame.enable(enable)
+
+    def _save(self, *args) -> None:
+        if self.mode == ps.NEW:
+            self.project = Project()
+            self.project.name = self.project_name.get()
+            self.project.project_dir = self.project_dir.get()
+
+            self.projects[self.project.name] = self.project
+        else:
+            versions = self.project.dev_versions
+            if versions:
+                version = self.version.get().split(' : ')
+                path = list(versions[0])
+                path[VERSION] = version[0]
+                path[PYTHON_VERSION] = version[1]
+                self.project.dev_dir = str(Path(*path))
+
+            self.project.name = self.project_name.get()
+            # self.project.dev_dir = self.dev_dir.get()
+            self.project.project_dir = self.project_dir.get()
+        save_projects(self.projects)
+        self.status = ps.UPDATED
+        self.dismiss()
+
+    def _compare_project(self) -> None:
+        if not Path(self.project.dev_dir).is_dir():
+            messagebox.showerror(
+                'Path error',
+                f'{self.project.dev_dir} \nis not a directory!',
+                parent=self.root,
+            )
+            return
+        self.project.dev_dir = self.version.get()
+        dlg = CompareFrame(self, self.project)
+        self.root.wait_window(dlg.root)
+        for widget in self.versions_frame.winfo_children():
+            widget.destroy()
+        self._populate_versions_frame()
+
+    def _build_project(self, *args) -> None:
+        if not self._is_valid():
+            return
+        dlg = BuildFrame(self, self.project)
+        self.root.wait_window(dlg.root)
+
+    def _is_valid(self) -> bool:
+        if self.project.py_project_missing:
+            messagebox.showerror('', 'py_project.toml missing')
+            return False
+        return True
+
+    def dismiss(self, *args) -> None:
+        self.root.destroy()

@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "compare"
+version = "0.1.0"
+description = "Compare two versions of the same package"
+authors = ["Jeff <jeffwatkins2000@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+appdirs = "^1.4.4"
+configration = "^3.0.3"
+termcolor = "^2.4.0"
+colorama = "^0.4.6"
+tomli = "^2.0.1"
+tomli-w = "^1.0.0"
+pytest = "^8.2.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
