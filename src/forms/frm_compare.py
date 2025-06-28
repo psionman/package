@@ -124,6 +124,7 @@ class CompareFrame():
         return frame
 
     def compare_project(self) -> None:
+        """Destroy and recreate widgets bases on comparison."""
         (missing, mismatches) = compare(
             self.project.project_dir, self.project.dev_dir)
 
