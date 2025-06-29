@@ -337,7 +337,6 @@ def _get_projects(project_file) -> dict[str, Project]:
     for key, item in project_list.items():
         project = Project()
         project.name = key
-        project.dev_dir = item[1]
         project.project_dir = item[0]
         project_dict[key] = project
         project.get_project_data()
@@ -353,7 +352,6 @@ def _read_projects(project_file: str | Path) -> list[str]:
                 return []
     except FileNotFoundError:
         return []
-
 
 def save_projects(projects: dict[str, Project]) -> int:
     output = {}

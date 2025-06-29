@@ -1,5 +1,6 @@
 import sys
 import tkinter as tk
+import contextlib
 
 from constants import ICON_FILE
 from psiutils.widgets import get_styles
@@ -19,11 +20,8 @@ class Root():
         """Create the app's root and loop."""
         root = self.root
         root.option_add('*tearOff', False)
-        try:
+        with contextlib.suppress(tk.TclError):
             root.iconphoto(False, tk.PhotoImage(file=ICON_FILE))
-        except tk.TclError as err:
-            if text.NO_SUCH_FILE in str(err):
-                pass
         root.protocol("WM_DELETE_WINDOW", root.destroy)
 
         get_styles()

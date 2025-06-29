@@ -1,8 +1,17 @@
+"""
+GUI for comparing and building Python package versions.
 
-"""ProjectVersionsFrame  for Package build."""
-import os
+This module defines the ProjectVersionsFrame class, which provides a
+Tkinter-based interface for selecting, comparing, and
+building different development versions of a Python package project.
+It interacts with project configuration data, performs version comparisons,
+and integrates build and compare workflows via modular frames.
+
+Intended for use within the PSI package build system.
+"""
+
 import tkinter as tk
-from tkinter import ttk, filedialog, messagebox
+from tkinter import ttk, messagebox
 from pathlib import Path
 
 import psiutils as ps
@@ -10,7 +19,7 @@ from psiutils.constants import PAD
 from psiutils.buttons import ButtonFrame, Button
 from psiutils.utilities import window_resize, geometry
 
-from projects import Project, save_projects
+from projects import Project
 from config import get_config
 from compare import compare
 import text
@@ -29,6 +38,41 @@ PROJECT = 9
 
 
 class ProjectVersionsFrame():
+    """
+    A GUI frame for selecting, comparing, and building project versions.
+
+    This class provides a Tkinter-based interface for working with multiple
+    development versions of a Python package. It allows the user to:
+
+    - View and select available development versions.
+    - Compare selected versions to the main project directory.
+    - Build a selected version after validation.
+
+    Attributes:
+        root (tk.Toplevel): The top-level window for this frame.
+        parent: The parent window or frame.
+        config (dict): Configuration values loaded via `get_config`.
+        mode (int): Determines whether fields are editable (e.g., `ps.EDIT`).
+        project (Project): The project currently being displayed and manipulated.
+        projects (list): A list of available projects from the parent.
+        save_button: Optional save button (currently unused).
+        versions_frame (tk.Frame): Frame containing version selection buttons.
+        button_frame (tk.Frame): Frame containing action buttons (Compare, Build, Exit).
+        project_name, dev_dir, project_dir, project_version, version (tk.StringVar):
+            Tkinter variables bound to GUI widgets, used for user input and display.
+
+    Methods:
+        show(): Initializes and lays out the main GUI window.
+        dismiss(): Closes the window.
+        _main_frame(master): Creates the main layout frame with widgets.
+        _versions_frame(master): Creates the container for version options.
+        _button_frame(master): Sets up action buttons.
+        _populate_versions_frame(): Fills the versions frame with radio buttons and version info.
+        _values_changed(*args): Enables/disables buttons based on field changes.
+        _compare_project(): Launches comparison window for selected version.
+        _build_project(): Opens build dialog for selected version.
+        _is_valid(): Checks project integrity before building.
+    """
     def __init__(
             self,
             parent,
@@ -43,6 +87,7 @@ class ProjectVersionsFrame():
         self.projects = parent.projects
         self.save_button = None
         self.versions_frame = None
+        self.button_frame = None
 
         if project.name not in self.config.project_envs:
             refresh = True
@@ -74,6 +119,15 @@ class ProjectVersionsFrame():
         self._populate_versions_frame()
 
     def show(self) -> None:
+        """
+        Display the project version selection window.
+
+        Sets up and displays the Toplevel window with layout, event bindings,
+        title, geometry, and resizing behaviour. Builds the main interface
+        frame and adds a size grip for window resizing.
+
+        Typically called during initialisation to render the window.
+        """
         root = self.root
         root.geometry(geometry(self.config, __file__))
         root.title(FRAME_TITLE)
@@ -138,14 +192,7 @@ class ProjectVersionsFrame():
 
     def _button_frame(self, master: tk.Frame) -> tk.Frame:
         frame = ButtonFrame(master, tk.VERTICAL)
-        self.save_button = Button(
-                frame,
-                text=text.SAVE,
-                command=self._save,
-                underline=0,
-                dimmable=True)
         frame.buttons = [
-            self.save_button,
             Button(
                 frame,
                 text=text.COMPARE,
@@ -195,8 +242,6 @@ class ProjectVersionsFrame():
                 mismatch_str = ' '.join(mismatches + missing_files)
                 if len(mismatch_str) > 50:
                     mismatch_str = f'{mismatch_str[:50]} ...'
-            # if version.version != self.project.project_version:
-            #     style = ''
             display_text = (f'{name} : ({version.version}) '
                             f'{mismatch_str}')
             button = ttk.Radiobutton(
@@ -208,39 +253,9 @@ class ProjectVersionsFrame():
             )
             button.grid(row=row, column=0, sticky=tk.W)
 
-    def _get_dev_dir(self, *args) -> None:
-        if directory := filedialog.askdirectory(
-                initialdir=self.dev_dir.get(),
-                parent=self.root,):
-            self.dev_dir.set(directory)
-            self.project.dev_dir = directory
-
     def _values_changed(self, *args) -> None:
         enable = bool(self.project_name.get())
         self.button_frame.enable(enable)
-
-    def _save(self, *args) -> None:
-        if self.mode == ps.NEW:
-            self.project = Project()
-            self.project.name = self.project_name.get()
-            self.project.project_dir = self.project_dir.get()
-
-            self.projects[self.project.name] = self.project
-        else:
-            versions = self.project.dev_versions
-            if versions:
-                version = self.version.get().split(' : ')
-                path = list(versions[0])
-                path[VERSION] = version[0]
-                path[PYTHON_VERSION] = version[1]
-                self.project.dev_dir = str(Path(*path))
-
-            self.project.name = self.project_name.get()
-            # self.project.dev_dir = self.dev_dir.get()
-            self.project.project_dir = self.project_dir.get()
-        save_projects(self.projects)
-        self.status = ps.UPDATED
-        self.dismiss()
 
     def _compare_project(self) -> None:
         if not Path(self.project.dev_dir).is_dir():
@@ -270,4 +285,9 @@ class ProjectVersionsFrame():
         return True
 
     def dismiss(self, *args) -> None:
+        """
+        Close the window and destroy the Toplevel widget.
+
+        Typically bound to an exit button or key event to dismiss the frame.
+        """
         self.root.destroy()
