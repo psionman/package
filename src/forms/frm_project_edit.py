@@ -7,7 +7,7 @@ from pathlib import Path
 
 import psiutils as ps
 from psiutils.constants import PAD
-from psiutils.buttons import ButtonFrame, Button
+from psiutils.buttons import ButtonFrame, Button, IconButton
 from psiutils.utilities import window_resize, geometry
 
 from projects import Project, EnvironmentVersion, save_projects
@@ -109,8 +109,10 @@ class ProjectEditFrame():
         entry = ttk.Entry(frame, textvariable=self.project_dir)
         entry.grid(row=3, column=1, columnspan=2, padx=PAD, sticky=tk.EW)
 
-        button = ttk.Button(frame, text=text.ELLIPSIS,
-                            command=self._get_project_dir)
+        # button = ttk.Button(frame, text=text.ELLIPSIS,
+        #                     command=self._get_project_dir)
+        button = IconButton(
+            frame, text.OPEN, 'open', self._get_project_dir)
         button.grid(row=3, column=3)
 
         self.button_frame = self._button_frame(frame)
@@ -120,28 +122,17 @@ class ProjectEditFrame():
 
     def _button_frame(self, master: tk.Frame) -> tk.Frame:
         frame = ButtonFrame(master, tk.VERTICAL)
-        self.save_button = Button(
-                frame,
-                text=text.SAVE,
-                command=self._save,
-                underline=0,
-                dimmable=True)
         frame.buttons = [
-            self.save_button,
-            Button(
-                frame,
-                text=text.EXIT,
-                command=self.dismiss,
-                sticky=tk.S,
-                underline=1),
+            frame.icon_button('save', True, self._save),
+            frame.icon_button('exit', False, self.dismiss),
         ]
         frame.enable(False)
         return frame
 
     def _get_project_dir(self, *args) -> None:
         if directory := filedialog.askdirectory(
-            initialdir=self.project_dir.get(),
-            parent=self.root,):
+                initialdir=self.project_dir.get(),
+                parent=self.root,):
             self.project_dir.set(directory)
 
     def _values_changed(self, *args) -> None:

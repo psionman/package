@@ -10,7 +10,7 @@ from psiutils.utilities import window_resize, geometry
 
 from compare import compare
 from config import get_config
-from psiutils.buttons import ButtonFrame, Button
+from psiutils.buttons import ButtonFrame, Button, IconButton
 
 import text
 from projects import Project
@@ -106,20 +106,10 @@ class CompareFrame():
 
     def _button_frame(self, master: tk.Frame) -> tk.Frame:
         frame = ButtonFrame(master, tk.HORIZONTAL)
-        buttons = [
-            Button(
-                frame,
-                text='Diff',
-                command=self.show_diff,
-                dimmable=True),
-            Button(
-                frame,
-                text=text.EXIT,
-                command=self.dismiss,
-                sticky=tk.E,
-                underline=1),
+        frame.buttons = [
+            frame.icon_button('diff', True, self.show_diff),
+            frame.icon_button('exit', False, self.dismiss),
         ]
-        frame.buttons = buttons
         frame.enable(False)
         return frame
 
@@ -177,7 +167,8 @@ class CompareFrame():
             label.grid(row=row, column=1, sticky=tk.W)
 
             if missing_files[0]:
-                button = ttk.Button(frame, text=text.COPY)
+                # button = ttk.Button(frame, text=text.COPY)
+                button = IconButton(frame, text.COPY, 'copy_docs')
                 button.grid(row=row, column=2, padx=PAD, pady=PADB)
                 button.bind("<Button-1>", lambda event, arg=None:
                             self._copy_file(missing_files[0]))

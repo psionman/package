@@ -4,7 +4,7 @@ import tkinter as tk
 from tkinter import ttk, messagebox, filedialog
 from pathlib import Path
 
-from psiutils.buttons import Button, ButtonFrame
+from psiutils.buttons import Button, ButtonFrame, IconButton
 from psiutils.constants import PAD
 from psiutils.utilities import window_resize, geometry
 
@@ -64,7 +64,9 @@ class ConfigFrame():
         directory.grid(row=row, column=1, columnspan=1, sticky=tk.EW,
                        padx=PAD, pady=PAD)
 
-        select = ttk.Button(frame, text=f'{text.SELECT}{text.ELLIPSIS}',
+        # select = ttk.Button(frame, text=f'{text.SELECT}{text.ELLIPSIS}',
+        #                     command=self._set_data_directory)
+        select = IconButton(frame, text=text.OPEN, icon='open',
                             command=self._set_data_directory)
         select.grid(row=row, column=2, sticky=tk.W, padx=PAD)
 
@@ -89,16 +91,8 @@ class ConfigFrame():
     def _button_frame(self, master: tk.Frame) -> tk.Frame:
         frame = ButtonFrame(master, tk.HORIZONTAL)
         frame.buttons = [
-            Button(
-                frame,
-                text=text.SAVE,
-                command=self._save_config,
-                dimmable=True),
-            Button(
-                frame,
-                text=text.EXIT,
-                command=self.dismiss,
-                sticky=tk.E),
+            frame.icon_button('save', True, self._save_config),
+            frame.icon_button('exit', False, self.dismiss),
         ]
         frame.grid(row=0, column=0, sticky=tk.EW)
         return frame

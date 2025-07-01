@@ -3,10 +3,11 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 from pathlib import Path
+from PIL import Image, ImageTk
 
 import psiutils as ps
 from psiutils.constants import PAD
-from psiutils.buttons import ButtonFrame, Button
+from psiutils.buttons import ButtonFrame, Button, IconButton
 from psiutils.treeview import sort_treeview
 from psiutils.menus import Menu, MenuItem
 from psiutils.utilities import window_resize, geometry
@@ -25,6 +26,65 @@ TREE_COLUMNS = (
     ('name', 'Project', 50),
     ('main', 'project dir', 400),
 )
+
+
+
+# class IconButton(tk.Frame):
+#     def __init__(self, master, text, icon, command=None, **kwargs):
+#         super().__init__(master, borderwidth=1, relief="raised", **kwargs)
+#         self.command = command
+
+#         # Styled text part
+#         icon_path = f'{Path(__file__).parent.parent}/icons/'
+#         image = Image.open(f'{icon_path}{icon}.png').resize((16, 16))
+#         photo_image = ImageTk.PhotoImage(image)
+
+#         self.button_label = ttk.Label(
+#             self, text=text, image=photo_image, compound=tk.LEFT)
+#         self.button_label.image = photo_image  # Prevent garbage collection
+#         self.button_label.pack(padx=(3, 5), pady=5)
+
+#         # Make the whole frame clickable
+#         self.bind_widgets()
+
+#     def bind_widgets(self):
+#         for widget in (self, self.button_label):
+#             widget.bind("<Button-1>", self._on_click)
+#             widget.bind("<Enter>", lambda e: self.config(relief="sunken"))
+#             widget.bind("<Leave>", lambda e: self.config(relief="raised"))
+
+#     def _on_click(self, event):
+#         if self.command:
+#             self.command()
+
+
+# class StyledButton(tk.Frame):
+#     def __init__(self, master, text, emoji, command=None, icon_size=8, **kwargs):
+#         super().__init__(master, borderwidth=1, relief="raised", **kwargs)
+#         self.command = command
+
+#         # Emoji part
+#         self.label_emoji = ttk.Label(
+#             self, text=emoji, font=('Segoe UI Emoji', icon_size))
+#         # self.label_emoji.config(height=10)
+#         self.label_emoji.pack(side='left', padx=(5, 0), pady=5)
+
+#         # Styled text part
+#         self.label_text = ttk.Label(self, text=text)
+#         self.label_text.pack(side='left', padx=(3, 5), pady=5)
+
+#         # Make the whole frame clickable
+#         self.bind_widgets()
+
+#     def bind_widgets(self):
+#         for widget in (self, self.label_text, self.label_emoji):
+#             widget.bind("<Button-1>", self._on_click)
+#             widget.bind("<Enter>", lambda e: self.config(relief="sunken"))
+#             widget.bind("<Leave>", lambda e: self.config(relief="raised"))
+
+#     def _on_click(self, event):
+#         if self.command:
+#             self.command()
 
 
 class MainFrame():
@@ -73,6 +133,27 @@ class MainFrame():
         self.tree = self._get_tree(frame)
         self.tree.grid(row=0, column=0, sticky=tk.NSEW)
         self._populate_tree()
+
+        # button = IconButton(
+        #     frame,
+        #     text=text.NEW,
+        #     icon='new',
+        #     command=self._new_project)
+        # button.grid(row=1, column=0)
+
+        # button = IconButton(
+        #     frame,
+        #     text=text.EDIT,
+        #     icon='edit',
+        #     command=self._edit_project)
+        # button.grid(row=1, column=1)
+
+        # button = IconButton(
+        #     frame,
+        #     text=text.CLOSE,
+        #     icon='cancel',
+        #     command=self.dismiss)
+        # button.grid(row=1, column=9)
 
         return frame
 
@@ -128,45 +209,14 @@ class MainFrame():
 
     def _button_frame(self, master: tk.Frame) -> tk.Frame:
         frame = ButtonFrame(master, tk.VERTICAL)
-        buttons = [
-            Button(
-                frame,
-                text=text.NEW,
-                command=self._new_project,
-                underline=0,
-                dimmable=False),
-            Button(
-                frame,
-                text=text.EDIT,
-                command=self._edit_project,
-                underline=0,
-                dimmable=True),
-            Button(
-                frame,
-                text=text.COMPARE,
-                command=self._compare_project,
-                underline=2,
-                dimmable=True),
-            Button(
-                frame,
-                text=text.REFRESH,
-                command=self._refresh_project,
-                underline=0,
-                dimmable=True),
-            Button(
-                frame,
-                text=text.DELETE,
-                command=self._delete_project,
-                underline=0,
-                dimmable=True),
-            Button(
-                frame,
-                text=text.EXIT,
-                command=self.dismiss,
-                sticky=tk.S,
-                underline=1),
+        frame.buttons = [
+            frame.icon_button('new', False, self._new_project),
+            frame.icon_button('edit', True, self._edit_project),
+            frame.icon_button('compare', True, self._compare_project),
+            frame.icon_button('refresh', True, self._refresh_project),
+            frame.icon_button('delete', True, self._delete_project),
+            frame.icon_button('close', False, self.dismiss),
         ]
-        frame.buttons = buttons
         frame.enable(False)
         return frame
 
