@@ -7,10 +7,10 @@ import shutil
 
 from psiutils.constants import PAD, PADB
 from psiutils.utilities import window_resize, geometry
+from psiutils.buttons import ButtonFrame, Button, IconButton
 
 from compare import compare
 from config import get_config
-from psiutils.buttons import ButtonFrame, Button, IconButton
 
 import text
 from projects import Project
@@ -114,7 +114,7 @@ class CompareFrame():
         return frame
 
     def compare_project(self) -> None:
-        """Destroy and recreate widgets bases on comparison."""
+        """Destroy and recreate widgets based on comparison."""
         (missing, mismatches) = compare(
             self.project.project_dir, self.project.dev_dir)
 
@@ -170,8 +170,9 @@ class CompareFrame():
                 # button = ttk.Button(frame, text=text.COPY)
                 button = IconButton(frame, text.COPY, 'copy_docs')
                 button.grid(row=row, column=2, padx=PAD, pady=PADB)
-                button.bind("<Button-1>", lambda event, arg=None:
-                            self._copy_file(missing_files[0]))
+                button.widget.bind(
+                    '<Button-1>', lambda event, arg=None:
+                    self._copy_file(missing_files[0]))
 
             row += 1
         return frame
@@ -234,12 +235,22 @@ class CompareFrame():
             self.compare_project()
 
     def _copy_file(self, file_name: str) -> None:
-        dlg = messagebox.askokcancel('', 'Copy this file?', parent=self.root)
+        source = Path(self.project.dev_dir, file_name)
+
+        item = 'file'
+        if source.is_dir():
+            item = 'directory'
+        dlg = messagebox.askokcancel(
+            '', f'Copy this {item}?', parent=self.root)
         if not dlg:
             return
-        source = Path(self.project.dev_dir, file_name)
+
         destination = Path(self.project.project_dir, file_name)
-        shutil.copyfile(source, destination)
+
+        if source.is_dir():
+            shutil.copytree(source, destination, dirs_exist_ok=True)
+        else:
+            shutil.copyfile(source, destination)
 
         for widget in self.missing_file_frame.winfo_children():
             widget.destroy()

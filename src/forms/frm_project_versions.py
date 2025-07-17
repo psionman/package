@@ -9,10 +9,12 @@ and integrates build and compare workflows via modular frames.
 
 Intended for use within the PSI package build system.
 """
-
+import os
+import subprocess
 import tkinter as tk
 from tkinter import ttk, messagebox
 from pathlib import Path
+import pyautogui as pag
 
 import psiutils as ps
 from psiutils.constants import PAD
@@ -91,7 +93,7 @@ class ProjectVersionsFrame():
 
         if project.name not in self.config.project_envs:
             refresh = True
-        project.dev_versions: list = project.get_versions(refresh)
+        self.refresh = refresh
 
         self.status = ps.NULL
 
@@ -194,6 +196,7 @@ class ProjectVersionsFrame():
         frame = ButtonFrame(master, tk.VERTICAL)
         frame.buttons = [
             frame.icon_button('compare', True, self._compare_project),
+            frame.icon_button('update', True, self._update_project),
             frame.icon_button('build', True, self._build_project),
             frame.icon_button('exit', False, self.dismiss),
         ]
@@ -201,6 +204,10 @@ class ProjectVersionsFrame():
         return frame
 
     def _populate_versions_frame(self) -> None:
+        self.project.dev_versions = self.project.get_versions(self.refresh)
+        self.refresh = False
+        for widget in self.versions_frame.winfo_children():
+            widget.destroy()
         versions = self.project.dev_versions
         for row, name in enumerate(sorted(list(versions))):
             version = versions[name]
@@ -229,6 +236,7 @@ class ProjectVersionsFrame():
                     mismatch_str = f'{mismatch_str[:50]} ...'
             display_text = (f'{name} : ({version.version}) '
                             f'{mismatch_str}')
+
             button = ttk.Radiobutton(
                 self.versions_frame,
                 text=display_text,
@@ -253,9 +261,47 @@ class ProjectVersionsFrame():
         self.project.dev_dir = self.version.get()
         dlg = CompareFrame(self, self.project)
         self.root.wait_window(dlg.root)
+
         for widget in self.versions_frame.winfo_children():
             widget.destroy()
         self._populate_versions_frame()
+
+    def _update_project(self) -> None:
+        venv_python = self._get_venv_python()
+        if not venv_python:
+            messagebox.showerror('', 'Virtualenv not found')
+            return
+
+        # Use the venv's python to run pip
+        returncode = 0
+
+        # ensure pip is installed
+        # python -m ensurepip --upgrade
+        command = [venv_python, '-m', 'ensurepip', '--upgrade']
+        result = subprocess.run(command, check=True)
+        returncode += result.returncode
+
+        # upgrade package
+        name = self.project.name
+        command = [venv_python, '-m', 'pip', 'install', '-U', name]
+        result = subprocess.run(command, check=True)
+        returncode += result.returncode
+
+        if returncode == 0:
+            messagebox.showinfo('', 'Package updated')
+        self._populate_versions_frame()
+
+    def _get_venv_python(self) -> str:
+        parts = Path(self.version.get()).parts
+        if '.venv' in parts:
+            index = parts.index('.venv')
+            project_dir = Path(*parts[:index])
+            return os.path.join(project_dir, '.venv', 'bin', 'python')
+        if '.pyenv' in parts:
+            index = parts.index('versions')
+            project_dir = Path(*parts[:index+2])
+            return os.path.join(project_dir, 'bin', 'python')
+        return ''
 
     def _build_project(self, *args) -> None:
         if not self._is_valid():

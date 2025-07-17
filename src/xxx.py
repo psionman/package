@@ -1,24 +1,16 @@
-from PIL import Image, ImageTk
-from pathlib import Path
-import tkinter as tk
-from tkinter import ttk
+import subprocess
+import os
 
+current_dir = os.getcwd()
 
-def main() -> None:
-    root = tk.Tk()
-    root.title('Hello world')
-    root.geometry('400x400')
+# Target project directory
+project_dir = '/home/jeff/projects/bbochat'
+os.chdir(project_dir)
 
-    icon = 'cancel'
-    img = Image.open(f'{Path(__file__).parent}/icons/{icon}.png').resize((16, 16))
-    photo = ImageTk.PhotoImage(img)
+# Use the venv's python to run pip
+venv_python = os.path.join(project_dir, '.venv', 'bin', 'python')
+subprocess.run([venv_python, '-m', 'pip', 'install', '-U', 'pip'])
 
-    btn = ttk.Button(root, image=photo, text="Edit", compound="left")
-    btn.image = photo  # Prevent garbage collection
-    btn.pack()
-
-    root.mainloop()
-
-
-if __name__ == '__main__':
-    main()
+subprocess.run(f'source deactivate', shell=True)
+os.chdir(current_dir)
+subprocess.run(f'source .venv/bin/activate', shell=True)

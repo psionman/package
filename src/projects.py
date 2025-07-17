@@ -30,6 +30,7 @@ class EnvironmentVersion():
         self.name = ''
         self.dir = ''
         self.python_version = ''
+        self.type = ''
 
         if data:
             self.deserialize(data)
@@ -52,18 +53,31 @@ class EnvironmentVersion():
         self.dir = environ.dir
         self.python_version = environ.python_version
         self.version = self._get_version()
+        self.venv_python = self._get_venv_python()
 
     def _get_version(self):
         version_re = r'[0-9]{1,}.[0-9]{1,}.[0-9]{1,}'
+        path = Path(self.dir, '_version.py')
         try:
-            with open(Path(self.dir, '_version.py'), 'r') as f_version:
+            with open(path, 'r', encoding='utf8') as f_version:
                 text = f_version.read()
-                match = re.search(version_re, text)
-                if match:
+                if match := re.search(version_re, text):
                     return match.group()
         except FileNotFoundError:
             return 'No version file'
         return 'Version error'
+
+    def _get_venv_python(self) -> str:
+        parts = Path(self.dir).parts
+        if '.venv' in parts:
+            index = parts.index('.venv')
+            project_dir = Path(*parts[:index])
+            return os.path.join(project_dir, '.venv', 'bin', 'python')
+        if '.pyenv' in parts:
+            index = parts.index('versions')
+            project_dir = Path(*parts[:index+2])
+            return os.path.join(project_dir, 'bin', 'python')
+        return ''
 
 
 class Project():
@@ -277,9 +291,7 @@ class Project():
         versions = config.project_envs[self.name]
         for version in versions:
             env_version = EnvironmentVersion(version)
-            # env_version.deserialize(version)
-            name = Path(env_version.dir).parts[VERSION]
-            env_versions[name] = env_version
+            env_versions[env_version.name] = env_version
 
         return env_versions
     def _get_versions_from_dir(self, path: str) -> dict:
