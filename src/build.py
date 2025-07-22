@@ -45,30 +45,32 @@ def update_module(context: dict) -> int:
 
 def _build(project: Project) -> int:
     print('*** Build ***')
-    error_msg = 'Build failure'
     try:
-        with chdir(str(project.parent_dir)):
-            subprocess.call(['poetry', 'build'])
+        with chdir(str(project.base_dir)):
+            subprocess.call(['uv', 'build'])
     except FileNotFoundError as error:
         print(error)
-        print(error_msg)
+        print('Build failure')
         return DIALOG_STATUS['error']
     return DIALOG_STATUS['ok']
 
 
 def _upload(project: Project, test_build: bool = False) -> int:
+    """
+        The PyPi token is stored in the environmental variable UV_PUBLISH_TOKEN
+        the value is kept in Documents/pypi folder
+    """
     print('*** Upload ***')
     error_msg = 'Upload failure'
     try:
-        with chdir(str(project.parent_dir)):
+        with chdir(str(project.base_dir)):
             if test_build:
-                proc = subprocess.Popen(['poetry', 'publish', '--dry-run'])
+                proc = subprocess.Popen(['uv', 'publish', '--dry-run'])
             else:
-                proc = subprocess.Popen(['poetry', 'publish'])
+                proc = subprocess.Popen(['uv', 'publish'])
         proc.wait()
         (stdout, stderr) = proc.communicate()
 
-        ic(proc.returncode)
         if proc.returncode != 0:
             print(f'Error! Return code: {proc.returncode}')
             if proc.returncode == 127:
@@ -91,7 +93,7 @@ def _delete_build_dirs(project: Project) -> int:
         'build',
         f'{project.name}.egg-info',
     ]:
-        path = Path(project.parent_dir, dir)
+        path = Path(project.base_dir, dir)
         if path.is_dir():
             try:
                 print(f'Removing {path}')

@@ -41,7 +41,8 @@ def _compare_contents(comparison: dict) -> list:
 
 def _file_contents(path: str) -> str:
     if not path.is_file():
-        return
+        file_list = list(path.iterdir())
+        return len(file_list)
     with open(path, 'r', encoding='utf-8') as f_contents:
         return f_contents.read()
 
