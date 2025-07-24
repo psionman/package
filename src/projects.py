@@ -87,11 +87,11 @@ class Project():
         self._project_dir_short: str = ''
         self.dev_version: str = ''
         self.project_version: str = ''
-        self.poetry_version: str = ''
+        self.pyproject_version: str = ''
         self._base_dir: Path = None
         self.history = ''
         self.new_history = ''
-        self._poetry_list = []
+        self._pyproject_list = []
         self.dev_versions: dict = {}
         self.py_project_missing = True
         # self._version_list = ['__version__ = 0.0.0']
@@ -137,7 +137,7 @@ class Project():
         return Path(self.project_dir, VERSION_FILE)
 
     @property
-    def poetry_path(self) -> Path:
+    def pyproject_path(self) -> Path:
         return Path(self.base_dir, PYPROJECT_TOML)
 
     def _get_version_text(self, path: str) -> str:
@@ -186,24 +186,26 @@ class Project():
         text = text.replace('"', '')
         return text.replace("'", '')
 
-    def _get_poetry_version(self) -> str:
+    def _get_pyproject_version(self) -> str:
         default = '-.-.-'
         self.py_project_missing = False
         try:
-            with open(self.poetry_path, 'r', encoding='utf8') as f_poetry:
-                poetry_text = f_poetry.read()
-            self._poetry_list = poetry_text.split('\n')
-            for line in self._poetry_list:
+            with open(
+                    self.pyproject_path, 'r', encoding='utf8') as f_pyproject:
+                poetry_text = f_pyproject.read()
+            self._pyproject_list = poetry_text.split('\n')
+            for line in self._pyproject_list:
                 if 'version =' in line:
                     line_list = line.split('=')
                     if len(line_list) != 2:
-                        print(f'poetry format error in {self.poetry_path}')
+                        err_str = 'pyproject.toml format error in'
+                        print(f'{err_str} {self.pyproject_path}')
                         return default
                     return self._clean_string(line_list[1])
             return default
         except FileNotFoundError:
             self.py_project_missing = True
-            print(f'pyproject.toml missing {self.poetry_path}')
+            print(f'pyproject.toml missing {self.pyproject_path}')
         return default
 
     def get_project_data(self) -> None:
@@ -211,7 +213,7 @@ class Project():
         self.project_version = self._get_project_version()
         self.history = self._get_history()
         self.new_history = self._get_new_history()
-        self.poetry_version = self._get_poetry_version()
+        self.pyproject_version = self._get_pyproject_version()
 
     def update_version(self, version: str) -> int:
         output = f'{VERSION_TEXT} = \'{version}\''
@@ -223,8 +225,8 @@ class Project():
             print(f'File missing {self.version_path}')
             return DIALOG_STATUS['error']
 
-    def update_poetry_version(self, version: str) -> int:
-        for index, line in enumerate(self._poetry_list):
+    def update_pyproject_version(self, version: str) -> int:
+        for index, line in enumerate(self._pyproject_list):
             if 'version =' in line:
                 line_list = line.split('=')
                 if len(line_list) != 2:
@@ -232,14 +234,15 @@ class Project():
                     return DIALOG_STATUS['error']
                 version_text = f'{line_list[0].strip()} = "{version}"'
 
-                output = self._poetry_list[:index]
+                output = self._pyproject_list[:index]
                 output.append(version_text)
-                output.extend(self._poetry_list[index+1:])
+                output.extend(self._pyproject_list[index+1:])
                 break
 
         try:
-            with open(self.poetry_path, 'w', encoding='utf8') as f_poetry:
-                f_poetry.write('\n'.join(output))
+            with open(
+                    self.pyproject_path, 'w', encoding='utf8') as f_pyproject:
+                f_pyproject.write('\n'.join(output))
             return DIALOG_STATUS['ok']
         except FileNotFoundError:
             print(f'pyproject.toml missing {path}')

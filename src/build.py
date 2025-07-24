@@ -1,46 +1,66 @@
 """Process the upgrade of the module."""
 from contextlib import chdir
+import os
 import subprocess
 import shutil
 from pathlib import Path
+from dotenv import load_dotenv
+
+from psiutils.constants import DIALOG_STATUS
 
 from projects import Project
-from psiutils.constants import DIALOG_STATUS
+
+
+load_dotenv()
+os.environ["UV_PUBLISH_TOKEN"] = os.getenv("UV_PUBLISH_TOKEN")
 
 
 def update_module(context: dict) -> int:
     project = context['project']
-    version = context['version']
-    history = context['history']
-    test_build = context['test_build']
 
-    if not test_build:
-        print('*** Update version ***')
-        if project.update_version(version) != DIALOG_STATUS['ok']:
-            return DIALOG_STATUS['error']
-
-        print('*** Update pyproject ***')
-        if project.update_poetry_version(version) != DIALOG_STATUS['ok']:
+    if not context['test_build']:
+        if _update_version(project, context['version']) != DIALOG_STATUS['ok']:
             return DIALOG_STATUS['error']
 
         print('*** Update history ***')
-        if project.update_history(history) != DIALOG_STATUS['ok']:
+        if project.update_history(context['history']) != DIALOG_STATUS['ok']:
             return DIALOG_STATUS['error']
 
-        if context['delete_build']:
-            if _delete_build_dirs(project) != DIALOG_STATUS['ok']:
-                return DIALOG_STATUS['error']
+        if (context['delete_build']
+                and _delete_build_dirs(project) != DIALOG_STATUS['ok']):
+            return DIALOG_STATUS['error']
 
     if _build(project) != DIALOG_STATUS['ok']:
+        _restore_project(context)
         return DIALOG_STATUS['error']
 
-    if _upload(project, test_build) != DIALOG_STATUS['ok']:
+    if _upload(project, context['test_build']) != DIALOG_STATUS['ok']:
+        _restore_project(context)
         return DIALOG_STATUS['error']
 
     print('')
     print('***Upload complete ***')
     print('')
     return DIALOG_STATUS['ok']
+
+
+def _update_version(project: Project, version: str) -> int:
+    print(f'*** Update version to {version} ***')
+    if project.update_version(version) != DIALOG_STATUS['ok']:
+        return DIALOG_STATUS['error']
+
+    print(f'*** Update pyproject to {version} ***')
+    if project.update_pyproject_version(version) != DIALOG_STATUS['ok']:
+        return DIALOG_STATUS['error']
+
+    return DIALOG_STATUS['ok']
+
+
+def _restore_project(context: dict) -> None:
+    print('*** Restoring project ***')
+    project = context['project']
+    _update_version(project, context['current_version'])
+    project.update_history(context['current_history'])
 
 
 def _build(project: Project) -> int:

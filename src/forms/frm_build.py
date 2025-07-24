@@ -28,7 +28,7 @@ class BuildFrame():
         # tk variables
         self.project_name = tk.StringVar(value=project.name)
         self.current_version = tk.StringVar(value=project.project_version)
-        self.poetry_version = tk.StringVar(value=project.poetry_version)
+        self.pyproject_version = tk.StringVar(value=project.pyproject_version)
         self.new_version = tk.StringVar(value=project.next_version())
         self.history = tk.StringVar(value=project.new_history)
         self.delete_build = tk.IntVar(value=1)
@@ -86,14 +86,14 @@ class BuildFrame():
             )
         entry.grid(row=1, column=1, sticky=tk.W, padx=PAD, pady=PAD)
 
-        label = ttk.Label(frame, text='Poetry version')
+        label = ttk.Label(frame, text='pyproject version')
         label.grid(row=2, column=0, sticky=tk.E, padx=PAD)
         entry = ttk.Entry(
             frame,
-            textvariable=self.poetry_version,
+            textvariable=self.pyproject_version,
             state='readonly',
             )
-        if self.current_version.get() != self.poetry_version.get():
+        if self.current_version.get() != self.pyproject_version.get():
             entry['foreground'] = 'red'
         entry.grid(row=2, column=1, sticky=tk.W, padx=PAD, pady=PAD)
 
@@ -138,12 +138,14 @@ class BuildFrame():
         enable_buttons(self.buttons, False)
         return frame
 
-    def _build(self, event: object = None) -> None:
+    def _build(self, *args) -> None:
         context = {
             'project': self.project,
             'delete_build': self.delete_build.get(),
             'version': self.new_version.get(),
+            'current_version': self.current_version.get(),
             'history': self.history_text.get('1.0', 'end'),
+            'current_history': self.project.history,
             'test_build': self.test_build.get(),
         }
         if update_module(context) == DIALOG_STATUS['ok']:
