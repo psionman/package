@@ -172,6 +172,10 @@ class Project():
 
     def next_version(self) -> str:
         version = self.project_version.split('.')
+        if 'missing' in version[0]:
+            path = Path(self.project_dir, VERSION_FILE)
+            print(f' version file missing {path}')
+            return ''
         if len(version) != 3:
             print(f'Invalid version (structure) {self.project_version}')
             return ''
@@ -334,38 +338,40 @@ class Project():
         config.save()
 
 
-def _get_projects(project_file) -> dict[str, Project]:
-    project_dict = {}
-    project_list = _read_projects(project_file)
-    for key, item in project_list.items():
-        project = Project()
-        project.name = key
-        project.project_dir = item[0]
-        project_dict[key] = project
-        project.get_project_data()
-    return project_dict
+class ProjectServer():
+    """Handle projects."""
+    def __init__(self) -> None:
+        self.project_file =  Path(DATA_DIR, config.project_file)
+        self.projects = self._get_projects()
 
+    def _get_projects(self) -> dict[str, Project]:
+        project_dict = {}
+        project_list = self._read_projects()
+        for key, item in project_list.items():
+            project = Project()
+            project.name = key
+            project.project_dir = item[0]
+            project_dict[key] = project
+            project.get_project_data()
+        return project_dict
 
-def _read_projects(project_file: str | Path) -> list[str]:
-    try:
-        with open(project_file, 'r', encoding='utf8') as f_projects:
-            try:
-                return json.load(f_projects)
-            except json.decoder.JSONDecodeError:
-                return []
-    except FileNotFoundError:
-        return []
+    def _read_projects(self) -> list[str]:
+        try:
+            with open(self.project_file, 'r', encoding='utf8') as f_projects:
+                try:
+                    return json.load(f_projects)
+                except json.decoder.JSONDecodeError:
+                    return []
+        except FileNotFoundError:
+            return []
 
-
-def save_projects(items: dict[str, Project]) -> int:
-    output = {project.name: project.serialize() for project in items.values()}
-    try:
-        with open(_project_file, 'w', encoding='utf8') as f_projects:
-            json.dump(output, f_projects)
-    except TypeError:
-        return ps.ERROR
-    return ps.OK
-
-
-_project_file = Path(DATA_DIR, config.project_file)
-projects = _get_projects(_project_file)
+    def save_projects(self, items: dict[str, Project]) -> int:
+        output = {project.name: project.serialize()
+                  for project in items.values()}
+        try:
+            with open(self.project_file, 'w', encoding='utf8') as f_projects:
+                json.dump(output, f_projects)
+                self.projects = self._get_projects()
+        except TypeError:
+            return ps.ERROR
+        return ps.OK

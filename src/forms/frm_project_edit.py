@@ -10,7 +10,7 @@ from psiutils.constants import PAD
 from psiutils.buttons import ButtonFrame, Button, IconButton
 from psiutils.utilities import window_resize, geometry
 
-from projects import Project, EnvironmentVersion, save_projects
+from projects import Project, EnvironmentVersion
 from config import get_config
 from compare import compare
 import text
@@ -144,7 +144,7 @@ class ProjectEditFrame():
             self.project = Project()
             self.project.name = self.project_name.get()
         self.project.project_dir = self.project_dir.get()
-        save_projects(self.projects)
+        self.parent.project_server.save_projects(self.projects)
         self.status = ps.UPDATED
         self.dismiss()
 

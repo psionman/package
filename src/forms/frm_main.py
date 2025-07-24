@@ -12,7 +12,7 @@ from psiutils.treeview import sort_treeview
 from psiutils.menus import Menu, MenuItem
 from psiutils.utilities import window_resize, geometry
 
-from projects import projects, save_projects
+from projects import ProjectServer
 from config import get_config
 import text
 
@@ -34,7 +34,8 @@ class MainFrame():
         self.parent = parent
         self.config = get_config()
 
-        self.projects = {key: projects[key] for key in sorted(projects.keys())}
+        self.project_server = ProjectServer()
+        self.projects = self.project_server.projects
         self.project = None
         # tk variables
 
@@ -190,7 +191,7 @@ class MainFrame():
         self._save_projects()
 
     def _save_projects(self) -> None:
-        result = save_projects(self.projects)
+        result = self.project_server.save_projects(self.projects)
         if result == ps.ERROR:
             messagebox.showerror(
                 'Save',

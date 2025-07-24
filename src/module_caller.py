@@ -1,5 +1,5 @@
 
-from projects import projects
+from projects import ProjectServer
 import psiutils as ps
 
 from forms.frm_config import ConfigFrame
@@ -12,7 +12,7 @@ class ModuleCaller():
             'config': self._config,
             'project': self._project
             }
-        self.projects = projects
+        self.projects = ProjectServer().projects
 
         self.invalid = False
         if module == '-h':
