@@ -73,8 +73,8 @@ wheels = [
 
 [[package]]
 name = "package"
-version = "0.1.0"
-source = { virtual = "." }
+version = "0.0.0"
+source = { editable = "." }
 dependencies = [
     { name = "appdirs" },
     { name = "icecream" },
@@ -84,6 +84,11 @@ dependencies = [
     { name = "psiutils" },
     { name = "python-dateutil" },
     { name = "tkinterweb" },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "pytest" },
 ]
 
 [package.metadata]
@@ -97,6 +102,9 @@ requires-dist = [
     { name = "python-dateutil", specifier = ">=2.9.0.post0" },
     { name = "tkinterweb", specifier = ">=4.3.1" },
 ]
+
+[package.metadata.requires-dev]
+dev = [{ name = "pytest" }]
 
 [[package]]
 name = "packaging"
