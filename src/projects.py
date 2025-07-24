@@ -94,7 +94,6 @@ class Project():
         self._pyproject_list = []
         self.dev_versions: dict = {}
         self.py_project_missing = True
-        # self._version_list = ['__version__ = 0.0.0']
 
     def __repr__(self) -> str:
         return f'Project: {self.name}'
@@ -131,6 +130,14 @@ class Project():
     @property
     def history_path(self) -> Path:
         return Path(self.base_dir, HISTORY_FILE)
+
+    @property
+    def version_text(self) -> str:
+        err_text = 'Version not found'
+        version = self._get_project_version()
+        version_re = r'^[0-9]{1,}.[0-9]{1,}.[0-9]{1,}$'
+        return version if re.match(version_re, version) else err_text
+
 
     @property
     def version_path(self) -> Path:
@@ -346,8 +353,8 @@ class ProjectServer():
 
     def _get_projects(self) -> dict[str, Project]:
         project_dict = {}
-        project_list = self._read_projects()
-        for key, item in project_list.items():
+        projects_raw = self._read_projects()
+        for key, item in projects_raw.items():
             project = Project()
             project.name = key
             project.project_dir = item[0]
@@ -365,13 +372,13 @@ class ProjectServer():
         except FileNotFoundError:
             return []
 
-    def save_projects(self, items: dict[str, Project]) -> int:
-        output = {project.name: project.serialize()
-                  for project in items.values()}
+    def save_projects(self, projects: dict[str, Project]) -> int:
+        output = {name: project.serialize()
+                  for name, project in projects.items()}
         try:
             with open(self.project_file, 'w', encoding='utf8') as f_projects:
                 json.dump(output, f_projects)
-                self.projects = self._get_projects()
+                self.projects = projects
         except TypeError:
             return ps.ERROR
         return ps.OK

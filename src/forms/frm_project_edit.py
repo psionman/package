@@ -51,7 +51,7 @@ class ProjectEditFrame():
         self.project_name = tk.StringVar(value=project.name)
         self.dev_dir = tk.StringVar(value=project.dev_dir)
         self.project_dir = tk.StringVar(value=project.project_dir)
-        self.project_version = tk.StringVar(value=self.project.project_version)
+        self.project_version = tk.StringVar(value=self.project.version_text)
         self.version = tk.StringVar()
 
         # Trace
@@ -145,6 +145,7 @@ class ProjectEditFrame():
             self.project.name = self.project_name.get()
         self.project.project_dir = self.project_dir.get()
         self.parent.project_server.save_projects(self.projects)
+        self.project_version.set(self.project.version_text)
         self.status = ps.UPDATED
         self.dismiss()
 
