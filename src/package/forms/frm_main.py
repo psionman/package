@@ -4,6 +4,7 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 from pathlib import Path
 from PIL import Image, ImageTk
+import subprocess
 
 import psiutils as ps
 from psiutils.constants import PAD
@@ -133,6 +134,7 @@ class MainFrame():
         frame.buttons = [
             frame.icon_button('new', False, self._new_project),
             frame.icon_button('edit', True, self._edit_project),
+            frame.icon_button('code', True, self._open_code),
             frame.icon_button('compare', True, self._compare_project),
             frame.icon_button('refresh', True, self._refresh_project),
             frame.icon_button('delete', True, self._delete_project),
@@ -145,6 +147,7 @@ class MainFrame():
         menu_items = [
             MenuItem(text.NEW, self._new_project, dimmable=False),
             MenuItem(text.EDIT, self._edit_project, dimmable=True),
+            MenuItem(text.CODE, self._open_code, dimmable=True),
             MenuItem(text.COMPARE, self._compare_project, dimmable=True),
             MenuItem(text.REFRESH, self._refresh_project, dimmable=True),
             MenuItem(text.DELETE, self._delete_project, dimmable=True),
@@ -200,6 +203,9 @@ class MainFrame():
             )
             return
         self._populate_tree()
+
+    def _open_code(self, *args) -> None:
+        subprocess.call(['codium', '-n', self.project.base_dir])
 
     def dismiss(self, *args) -> None:
         self.root.destroy()
