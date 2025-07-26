@@ -65,7 +65,7 @@ class ProjectVersionsFrame():
 
     Methods:
         show(): Initializes and lays out the main GUI window.
-        dismiss(): Closes the window.
+        _dismiss(): Closes the window.
         _main_frame(master): Creates the main layout frame with widgets.
         _versions_frame(master): Creates the container for version options.
         _button_frame(master): Sets up action buttons.
@@ -134,7 +134,7 @@ class ProjectVersionsFrame():
         root.geometry(geometry(self.config, __file__))
         root.title(FRAME_TITLE)
         root.transient(self.parent.root)
-        root.bind('<Control-x>', self.dismiss)
+        root.bind('<Control-x>', self._dismiss)
         root.bind('<Configure>',
                   lambda event, arg=None: window_resize(self, __file__))
 
@@ -198,7 +198,7 @@ class ProjectVersionsFrame():
             frame.icon_button('build', False, self._build_project),
             frame.icon_button('compare', True, self._compare_project),
             frame.icon_button('update', True, self._update_project),
-            frame.icon_button('exit', False, self.dismiss),
+            frame.icon_button('exit', False, self._dismiss),
         ]
         frame.enable(False)
         return frame
@@ -315,10 +315,10 @@ class ProjectVersionsFrame():
             return False
         return True
 
-    def dismiss(self, *args) -> None:
+    def _dismiss(self, *args) -> None:
         """
         Close the window and destroy the Toplevel widget.
 
-        Typically bound to an exit button or key event to dismiss the frame.
+        Typically bound to an exit button or key event to _dismiss the frame.
         """
         self.root.destroy()

@@ -44,7 +44,7 @@ class CompareFrame():
         root = self.root
         root.geometry(geometry(self.config, __file__))
         root.transient(self.parent.root)
-        root.bind('<Control-x>', self.dismiss)
+        root.bind('<Control-x>', self._dismiss)
         root.bind('<Configure>',
                   lambda event, arg=None: window_resize(self, __file__))
 
@@ -108,7 +108,7 @@ class CompareFrame():
         frame = ButtonFrame(master, tk.HORIZONTAL)
         frame.buttons = [
             frame.icon_button('diff', True, self.show_diff),
-            frame.icon_button('exit', False, self.dismiss),
+            frame.icon_button('exit', False, self._dismiss),
         ]
         frame.enable(False)
         return frame
@@ -256,5 +256,5 @@ class CompareFrame():
             widget.destroy()
         self.compare_project()
 
-    def dismiss(self, *args) -> None:
+    def _dismiss(self, *args) -> None:
         self.root.destroy()

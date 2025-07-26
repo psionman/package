@@ -31,7 +31,7 @@ class MainMenu():
     def _file_menu_items(self) -> list:
         return [
             MenuItem(f'{text.CONFIG}{text.ELLIPSIS}', self._config_frame),
-            MenuItem(text.QUIT, self.dismiss),
+            MenuItem(text.QUIT, self._dismiss),
         ]
 
     def _help_menu_items(self) -> list:
@@ -62,6 +62,6 @@ class MainMenu():
     #         self.cmb_project['values'] += (project,)
     #     self.projects[project] = ['', '']
 
-    def dismiss(self) -> None:
+    def _dismiss(self) -> None:
         """Quit the application."""
         self.root.destroy()

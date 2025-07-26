@@ -131,7 +131,7 @@ class BuildFrame():
             Button(
                 frame,
                 text=text.EXIT,
-                command=self._dismiss,
+                command=self.__dismiss,
                 sticky=tk.E),
         ]
         frame.buttons = self.buttons
@@ -160,7 +160,7 @@ class BuildFrame():
                 'Module not updated',
                 parent=self.root
             )
-        self._dismiss()
+        self.__dismiss()
 
-    def _dismiss(self):
+    def __dismiss(self):
         self.root.destroy()

@@ -46,7 +46,7 @@ class MainFrame():
         root = self.root
         root.geometry(geometry(self.config, __file__))
         root.title(FRAME_TITLE)
-        root.bind('<Control-x>', self.dismiss)
+        root.bind('<Control-x>', self._dismiss)
         root.bind('<Configure>',
                   lambda event, arg=None: window_resize(self, __file__))
 
@@ -138,7 +138,7 @@ class MainFrame():
             frame.icon_button('compare', True, self._compare_project),
             frame.icon_button('refresh', True, self._refresh_project),
             frame.icon_button('delete', True, self._delete_project),
-            frame.icon_button('close', False, self.dismiss),
+            frame.icon_button('close', False, self._dismiss),
         ]
         frame.enable(False)
         return frame
@@ -207,5 +207,5 @@ class MainFrame():
     def _open_code(self, *args) -> None:
         subprocess.call(['codium', '-n', self.project.base_dir])
 
-    def dismiss(self, *args) -> None:
+    def _dismiss(self, *args) -> None:
         self.root.destroy()

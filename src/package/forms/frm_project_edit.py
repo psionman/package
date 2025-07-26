@@ -67,7 +67,7 @@ class ProjectEditFrame():
         root.geometry(geometry(self.config, __file__))
         root.title(FRAME_TITLE)
         root.transient(self.parent.root)
-        root.bind('<Control-x>', self.dismiss)
+        root.bind('<Control-x>', self._dismiss)
         root.bind('<Configure>',
                   lambda event, arg=None: window_resize(self, __file__))
 
@@ -124,7 +124,7 @@ class ProjectEditFrame():
         frame = ButtonFrame(master, tk.VERTICAL)
         frame.buttons = [
             frame.icon_button('save', True, self._save),
-            frame.icon_button('exit', False, self.dismiss),
+            frame.icon_button('exit', False, self._dismiss),
         ]
         frame.enable(False)
         return frame
@@ -147,7 +147,7 @@ class ProjectEditFrame():
         self.parent.project_server.save_projects(self.projects)
         self.project_version.set(self.project.version_text)
         self.status = ps.UPDATED
-        self.dismiss()
+        self._dismiss()
 
     def _compare_project(self) -> None:
         if not Path(self.project.dev_dir).is_dir():
@@ -168,5 +168,5 @@ class ProjectEditFrame():
         dlg = BuildFrame(self, self.project)
         self.root.wait_window(dlg.root)
 
-    def dismiss(self, *args) -> None:
+    def _dismiss(self, *args) -> None:
         self.root.destroy()

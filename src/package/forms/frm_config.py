@@ -33,7 +33,7 @@ class ConfigFrame():
         root.geometry(geometry(self.config, __file__))
         root.title(text.CONFIG)
 
-        root.bind('<Control-x>', self.dismiss)
+        root.bind('<Control-x>', self._dismiss)
         root.bind('<Control-s>', self._save_config)
         root.bind('<Configure>',
                   lambda event, arg=None: window_resize(self, __file__))
@@ -92,7 +92,7 @@ class ConfigFrame():
         frame = ButtonFrame(master, tk.HORIZONTAL)
         frame.buttons = [
             frame.icon_button('save', True, self._save_config),
-            frame.icon_button('exit', False, self.dismiss),
+            frame.icon_button('exit', False, self._dismiss),
         ]
         frame.grid(row=0, column=0, sticky=tk.EW)
         return frame
@@ -128,7 +128,7 @@ class ConfigFrame():
             message = f'Defaults not saved{LF}{result}'
             messagebox.showerror(title=APP_TITLE, message=message,
                                  parent=self.root)
-        self.dismiss()
+        self._dismiss()
 
     def write_config(self):
         # Files
@@ -141,5 +141,5 @@ class ConfigFrame():
         result = save_config(config)
         return result
 
-    def dismiss(self) -> None:
+    def _dismiss(self) -> None:
         self.root.destroy()
