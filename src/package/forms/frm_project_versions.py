@@ -14,7 +14,7 @@ import subprocess
 import tkinter as tk
 from tkinter import ttk, messagebox
 from pathlib import Path
-import pyautogui as pag
+import subprocess
 
 import psiutils as ps
 from psiutils.constants import PAD
@@ -189,8 +189,8 @@ class ProjectVersionsFrame():
         return frame
 
     def _versions_frame(self, master: tk.Frame) -> tk.Frame:
-        frame = ttk.Frame(master)
-        return frame
+        return ttk.Frame(master)
+
 
     def _button_frame(self, master: tk.Frame) -> tk.Frame:
         frame = ButtonFrame(master, tk.VERTICAL)
@@ -198,6 +198,7 @@ class ProjectVersionsFrame():
             frame.icon_button('build', False, self._build_project),
             frame.icon_button('compare', True, self._compare_project),
             frame.icon_button('update', True, self._update_project),
+            frame.icon_button('code', True, self._open_code),
             frame.icon_button('exit', False, self._dismiss),
         ]
         frame.enable(False)
@@ -268,9 +269,6 @@ class ProjectVersionsFrame():
 
     def _update_project(self) -> None:
         venv_python = self._get_venv_python()
-        if not venv_python:
-            messagebox.showerror('', 'Virtualenv not found')
-            return
 
         # Use the venv's python to run pip
         returncode = 0
@@ -292,7 +290,6 @@ class ProjectVersionsFrame():
         self._populate_versions_frame()
 
     def _get_venv_python(self) -> str:
-        parts = Path(self.version.get()).parts
         if '.venv' in parts:
             index = parts.index('.venv')
             project_dir = Path(*parts[:index])
@@ -301,6 +298,8 @@ class ProjectVersionsFrame():
             index = parts.index('versions')
             project_dir = Path(*parts[:index+2])
             return os.path.join(project_dir, 'bin', 'python')
+
+        messagebox.showerror('', 'Virtualenv not found')
         return ''
 
     def _build_project(self, *args) -> None:
@@ -314,6 +313,9 @@ class ProjectVersionsFrame():
             messagebox.showerror('', 'py_project.toml missing')
             return False
         return True
+
+    def _open_code(self, *args) -> None:
+        subprocess.call(['codium', '-n', self.version.get()])
 
     def _dismiss(self, *args) -> None:
         """
