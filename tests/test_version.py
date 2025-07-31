@@ -1,6 +1,6 @@
 import re
 
-from psi_toml._version import __version__
+from package._version import __version__
 
 
 def test_version():

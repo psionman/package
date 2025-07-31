@@ -13,6 +13,7 @@ ICON_FILE = Path(Path(__file__).parent, 'images', 'favicon.png')
 
 CONFIG_PATH = Path(user_config_dir(APP_NAME, AUTHOR), 'config.toml')
 DATA_DIR = str(Path(user_data_dir(APP_NAME, AUTHOR)))
+DATA_FILE = 'projects.json'
 
 HISTORY_FILE = 'HISTORY.md'
 VERSION_FILE = '_version.py'

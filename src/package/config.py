@@ -7,7 +7,6 @@ DEFAULT_CONFIG = {
     'data_directory': DATA_DIR,
     'last_project': '',
     'project_file': 'projects.json',
-    'project_envs': '[]',
     'ignore': [],
     'geometry': {
         'frm_main': '1400x600',

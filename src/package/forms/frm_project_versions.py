@@ -86,12 +86,12 @@ class ProjectVersionsFrame():
         self.config = get_config()
         self.mode = mode
         self.project = project
-        self.projects = parent.projects
+        self.project_server = parent.project_server
         self.save_button = None
         self.versions_frame = None
         self.button_frame = None
 
-        if project.name not in self.config.project_envs:
+        if not project.cached_envs:
             refresh = True
         self.refresh = refresh
 
@@ -206,6 +206,8 @@ class ProjectVersionsFrame():
 
     def _populate_versions_frame(self) -> None:
         self.project.dev_versions = self.project.get_versions(self.refresh)
+        if self.refresh:
+            self.project_server.save_projects()
         self.refresh = False
         for widget in self.versions_frame.winfo_children():
             widget.destroy()

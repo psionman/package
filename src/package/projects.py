@@ -9,7 +9,7 @@ from typing import NamedTuple
 import psiutils as ps
 from psiutils.constants import DIALOG_STATUS
 from config import config
-from constants import (PYPROJECT_TOML, DATA_DIR,
+from constants import (PYPROJECT_TOML, DATA_DIR, DATA_FILE,
                         HISTORY_FILE, VERSION_FILE, VERSION_TEXT)
 
 
@@ -93,6 +93,7 @@ class Project():
         self.new_history = ''
         self._pyproject_list = []
         self.dev_versions: dict = {}
+        self.cached_envs = {}
         self.py_project_missing = True
 
     def __repr__(self) -> str:
@@ -107,7 +108,11 @@ class Project():
         return self._short_dir(self.project_dir)
 
     def serialize(self) -> list[str]:
-        return [self.project_dir, self.dev_dir]
+        return {
+            'dir': self.project_dir,
+            'cached_envs': {key: item.serialize()
+                            for key, item in self.cached_envs.items()},
+            }
 
     @staticmethod
     def _short_dir(dir: str) -> str:
@@ -270,13 +275,11 @@ class Project():
 
     def get_versions(
             self, refresh: bool = False) -> list[dict[EnvironmentVersion]]:
-        """Return a list of development versions of the project."""
-        if not refresh and self.name in config.project_envs:
-            return self._get_saved_versions()
+        """Return a list of environment versions of the project."""
+        if not refresh:
+            return self.cached_envs
 
         env_versions = {}  # dict of EnvironmentVersion
-        versions = []  # paths to envs to ensure no duplication
-        names = []  # names of envs to ensure no duplication
 
         pyenv_dir = Path(Path.home(), '.pyenv', 'versions')
         pyenv_versions = self._get_versions_from_dir(pyenv_dir)
@@ -285,21 +288,11 @@ class Project():
         venv_versions = self._get_versions_from_dir(venv_dir)
 
         env_versions = {**pyenv_versions, **venv_versions}
-        self._save_versions(env_versions)
-        return env_versions
-
-    def _get_saved_versions(self) -> dict:
-        env_versions = {}  # dict of EnvironmentVersion
-        versions = config.project_envs[self.name]
-        for version in versions:
-            env_version = EnvironmentVersion(version)
-            env_versions[env_version.name] = env_version
-
+        self.cached_envs = env_versions
         return env_versions
 
     def _get_versions_from_dir(self, path: str) -> dict:
         env_versions = {}  # dict of EnvironmentVersion
-        environment_names = []  # names of envs to ensure no duplication
 
         for directory, subdirs, files in os.walk(path, followlinks=False):
             del subdirs, files
@@ -327,8 +320,7 @@ class Project():
 
             if self.name == parts[project_name_index]:
                 environment_name = parts[environment_index]
-                if environment_name not in environment_names:
-                    environment_names.append(environment_name)
+                if environment_name not in env_versions:
                     data = (
                         environment_name,
                         directory,
@@ -336,19 +328,11 @@ class Project():
                     env_versions[environment_name] = EnvironmentVersion(data)
         return env_versions
 
-    def _save_versions(self, env_versions: dict) -> None:
-        versions = [version.serialize()
-                    for version in env_versions.values()]
-        project_envs = config.project_envs
-        project_envs[self.name] = versions
-        config.update('project_envs', project_envs)
-        config.save()
-
 
 class ProjectServer():
     """Handle projects."""
     def __init__(self) -> None:
-        self.project_file =  Path(DATA_DIR, config.project_file)
+        self.project_file = Path(DATA_DIR, config.project_file)
         self.projects = self._get_projects()
 
     def _get_projects(self) -> dict[str, Project]:
@@ -357,22 +341,27 @@ class ProjectServer():
         for key, item in projects_raw.items():
             project = Project()
             project.name = key
-            project.project_dir = item[0]
             project_dict[key] = project
+
+            project.project_dir = item['dir']
+            project.cached_envs = {key: EnvironmentVersion(data)
+                                   for key, data
+                                   in item['cached_envs'].items()}
             project.get_project_data()
         return project_dict
-
-    def _read_projects(self) -> list[str]:
+    def _read_projects(self) -> dict:
         try:
             with open(self.project_file, 'r', encoding='utf8') as f_projects:
                 try:
                     return json.load(f_projects)
                 except json.decoder.JSONDecodeError:
-                    return []
+                    return {}
         except FileNotFoundError:
-            return []
+            return {}
 
-    def save_projects(self, projects: dict[str, Project]) -> int:
+    def save_projects(self, projects: dict[str, Project] = None) -> int:
+        if not projects:
+            projects = self.projects
         output = {name: project.serialize()
                   for name, project in projects.items()}
         try:
