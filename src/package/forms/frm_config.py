@@ -66,7 +66,7 @@ class ConfigFrame():
 
         # select = ttk.Button(frame, text=f'{txt.SELECT}{txt.ELLIPSIS}',
         #                     command=self._set_data_directory)
-        select = IconButton(frame, text=txt.OPEN, icon='open',
+        select = IconButton(frame, txt.OPEN, icon='open',
                             command=self._set_data_directory)
         select.grid(row=row, column=2, sticky=tk.W, padx=PAD)
 

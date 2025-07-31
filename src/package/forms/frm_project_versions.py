@@ -56,7 +56,7 @@ class ProjectVersionsFrame():
         versions_frame (tk.Frame): Frame containing version selection buttons.
         button_frame (tk.Frame):
             Frame containing action buttons (Compare, Build, Exit).
-        project_name, dev_dir, project_dir, project_version,
+        project_name, env_dir, project_dir, project_version,
             version (tk.StringVar):
 
         Tkinter variables bound to GUI widgets,
@@ -100,20 +100,20 @@ class ProjectVersionsFrame():
 
         if not project:
             project = Project()
-            project.dev_dir = DEFAULT_DEV_DIR
+            project.env_dir = DEFAULT_DEV_DIR
             project.project_dir = DEFAULT_PROJECT_DIR
         self.project = project
 
         # tk variables
         self.project_name = tk.StringVar(value=project.name)
-        self.dev_dir = tk.StringVar(value=project.dev_dir)
+        self.env_dir = tk.StringVar(value=project.env_dir)
         self.project_dir = tk.StringVar(value=project.project_dir)
         self.project_version = tk.StringVar(value=self.project.version_text)
         self.version = tk.StringVar()
 
         # Trace
         self.project_name.trace_add('write', self._values_changed)
-        self.dev_dir.trace_add('write', self._values_changed)
+        self.env_dir.trace_add('write', self._values_changed)
         self.project_dir.trace_add('write', self._values_changed)
         self.version.trace_add('write', self._values_changed)
 
@@ -205,13 +205,13 @@ class ProjectVersionsFrame():
         return frame
 
     def _populate_versions_frame(self) -> None:
-        self.project.dev_versions = self.project.get_versions(self.refresh)
+        self.project.env_versions = self.project.get_versions(self.refresh)
         if self.refresh:
             self.project_server.save_projects()
         self.refresh = False
         for widget in self.versions_frame.winfo_children():
             widget.destroy()
-        versions = self.project.dev_versions
+        versions = self.project.env_versions
         for row, name in enumerate(sorted(list(versions))):
             version = versions[name]
             style = ''
@@ -254,14 +254,14 @@ class ProjectVersionsFrame():
         self.button_frame.enable(enable)
 
     def _compare_project(self) -> None:
-        if not Path(self.project.dev_dir).is_dir():
+        if not Path(self.project.env_dir).is_dir():
             messagebox.showerror(
                 'Path error',
-                f'{self.project.dev_dir} \nis not a directory!',
+                f'{self.project.env_dir} \nis not a directory!',
                 parent=self.root,
             )
             return
-        self.project.dev_dir = self.version.get()
+        self.project.env_dir = self.version.get()
         dlg = CompareFrame(self, self.project)
         self.root.wait_window(dlg.root)
 
@@ -276,8 +276,8 @@ class ProjectVersionsFrame():
         returncode = 0
 
         # ensure pip is installed
-        # python -m ensurepip --upgrade
         command = [venv_python, '-m', 'ensurepip', '--upgrade']
+
         result = subprocess.run(command, check=True)
         returncode += result.returncode
 
@@ -292,8 +292,8 @@ class ProjectVersionsFrame():
         self._populate_versions_frame()
 
     def _get_venv_python(self) -> str:
-        self.project.dev_dir = self.version.get()
-        parts = Path(self.project.dev_dir).parts
+        self.project.env_dir = self.version.get()
+        parts = Path(self.project.env_dir).parts
         if '.venv' in parts:
             index = parts.index('.venv')
             project_dir = Path(*parts[:index])

@@ -37,26 +37,26 @@ class ProjectEditFrame():
         self.project = project
         self.projects = parent.projects
         if project:
-            project.dev_versions: list = project.get_versions()
+            project.env_versions: list = project.get_versions()
 
         self.status = ps.NULL
 
         if not project:
             project = Project()
-            project.dev_dir = DEFAULT_DEV_DIR
+            project.env_dir = DEFAULT_DEV_DIR
             project.project_dir = DEFAULT_PROJECT_DIR
         self.project = project
 
         # tk variables
         self.project_name = tk.StringVar(value=project.name)
-        self.dev_dir = tk.StringVar(value=project.dev_dir)
+        self.env_dir = tk.StringVar(value=project.env_dir)
         self.project_dir = tk.StringVar(value=project.project_dir)
         self.project_version = tk.StringVar(value=self.project.version_text)
         self.version = tk.StringVar()
 
         # Trace
         self.project_name.trace_add('write', self._values_changed)
-        self.dev_dir.trace_add('write', self._values_changed)
+        self.env_dir.trace_add('write', self._values_changed)
         self.project_dir.trace_add('write', self._values_changed)
         self.version.trace_add('write', self._values_changed)
 
@@ -150,14 +150,14 @@ class ProjectEditFrame():
         self._dismiss()
 
     def _compare_project(self) -> None:
-        if not Path(self.project.dev_dir).is_dir():
+        if not Path(self.project.env_dir).is_dir():
             messagebox.showerror(
                 'Path error',
-                f'{self.project.dev_dir} \nis not a directory!',
+                f'{self.project.env_dir} \nis not a directory!',
                 parent=self.root,
             )
             return
-        self.project.dev_dir = self.version.get()
+        self.project.env_dir = self.version.get()
         dlg = CompareFrame(self, self.project)
         self.root.wait_window(dlg.root)
         for widget in self.versions_frame.winfo_children():

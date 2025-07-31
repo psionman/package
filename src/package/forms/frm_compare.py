@@ -30,9 +30,9 @@ class CompareFrame():
 
         # Tk Variables
         self.project_name = tk.StringVar(value=project.name)
-        self.dev_dir = tk.StringVar(value=project.dev_dir_short)
+        self.env_dir = tk.StringVar(value=project.env_dir_short)
         self.project_dir = tk.StringVar(value=project.project_dir_short)
-        self.dev_version = tk.StringVar(value=project.dev_version)
+        self.env_version = tk.StringVar(value=project.env_version)
         self.project_version = tk.StringVar(value=project.project_version)
         self.mismatch = tk.StringVar(value='')
         self.show()
@@ -79,11 +79,11 @@ class CompareFrame():
         label = ttk.Label(frame, text='Dev version')
         label.grid(row=1, column=0, sticky=tk.E)
 
-        entry = ttk.Entry(frame, textvariable=self.dev_version,
+        entry = ttk.Entry(frame, textvariable=self.env_version,
                           state='readonly')
         entry.grid(row=1, column=1, sticky=tk.EW, padx=PAD)
 
-        entry = ttk.Entry(frame, textvariable=self.dev_dir, state='readonly')
+        entry = ttk.Entry(frame, textvariable=self.env_dir, state='readonly')
         entry.grid(row=1, column=2, sticky=tk.EW, padx=PAD)
 
         label = ttk.Label(frame, text='Project version')
@@ -116,7 +116,7 @@ class CompareFrame():
     def compare_project(self) -> None:
         """Destroy and recreate widgets based on comparison."""
         (missing, mismatches) = compare(
-            self.project.project_dir, self.project.dev_dir)
+            self.project.project_dir, self.project.env_dir)
 
         for item in self.destroy_widgets:
             item.destroy()
@@ -224,18 +224,18 @@ class CompareFrame():
     def show_diff(self, *args) -> None:
         file = self.mismatch.get()
         paths = [
-            str(Path(self.project.dev_dir, file)),
+            str(Path(self.project.env_dir, file)),
             str(Path(self.project.project_dir, file)),
         ]
 
         self.root.withdraw()
         subprocess.run(['meld', *paths])
         self.root.deiconify()
-        if self.dev_dir.get() and self.project_dir.get():
+        if self.env_dir.get() and self.project_dir.get():
             self.compare_project()
 
     def _copy_file(self, file_name: str) -> None:
-        source = Path(self.project.dev_dir, file_name)
+        source = Path(self.project.env_dir, file_name)
 
         item = 'file'
         if source.is_dir():
