@@ -1,6 +1,6 @@
 from psiconfig import TomlConfig
 
-from constants import CONFIG_PATH, DATA_DIR
+from package.constants import CONFIG_PATH, DATA_DIR
 
 
 DEFAULT_CONFIG = {

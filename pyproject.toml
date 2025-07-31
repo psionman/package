@@ -1,7 +1,7 @@
 [project]
 name = "package"
 version = "0.0.0"
-description = "Compare two versions of the same package"
+description = "Compare package with install versions in virtual environments"
 authors = [{name = "Jeff", "email" = "<jeffwatkins2000@gmail.com>"}]
 readme = "README.md"
 requires-python = ">=3.13"

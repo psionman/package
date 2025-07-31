@@ -1,18 +1,20 @@
 """Project data for Compare."""
 import os
-import json
 from pathlib import Path
 from datetime import datetime
 import re
 
-import psiutils as ps
 from psiutils.constants import DIALOG_STATUS
-from config import config
 
-from env_version import EnvironmentVersion
-from constants import (PYPROJECT_TOML, DATA_DIR, DATA_FILE,
-                        HISTORY_FILE, VERSION_FILE, VERSION_TEXT)
+from package.config import config
 
+from package.env_version import EnvironmentVersion
+from package.constants import (
+    PYPROJECT_TOML, DATA_DIR, HISTORY_FILE, VERSION_FILE, VERSION_TEXT)
+from package.projects_io import (
+    get_raw_version_text, get_history, get_pyproject_version_text,
+    update_version_file, update_pyproject_file, update_history_file,
+    get_projects, save_project_file)
 
 class Project():
     """Project class to support the package module."""
@@ -20,6 +22,16 @@ class Project():
     # base_dir is the base directory containing, e.g. HISTORY.md
 
     def __init__(self) -> None:
+        """
+            Initializes a Projects object.
+
+            Args:
+                self: The Projects object itself.
+
+            Returns:
+                None
+        """
+
         self.name: str = ''
         self.dev_dir: str = ''
         self.project_dir: str = ''
@@ -37,6 +49,13 @@ class Project():
         self.py_project_missing = True
 
     def __repr__(self) -> str:
+        """
+        Returns a string representation of the Projects object.
+
+        Returns:
+            str: A string representation of the Projects object.
+        """
+
         return f'Project: {self.name}'
 
     @property
@@ -47,7 +66,13 @@ class Project():
     def project_dir_short(self) -> str:
         return self._short_dir(self.project_dir)
 
-    def serialize(self) -> list[str]:
+    def serialize(self) -> dict:
+        """
+            Serializes the Projects object into a dictionary.
+
+            Returns:
+                dict: A dictionary containing serialized project data.
+        """
         return {
             'dir': self.project_dir,
             'cached_envs': {key: item.serialize()
@@ -55,14 +80,26 @@ class Project():
             }
 
     @staticmethod
-    def _short_dir(dir: str) -> str:
-        return dir.replace(str(Path.home()), '~')
+    def _short_dir(long_dir: str) -> str:
+        return long_dir.replace(str(Path.home()), '~')
 
     def _get_dev_version(self) -> str:
-        return self._get_version_text(Path(self.dev_dir, VERSION_FILE))
+        raw_text = get_raw_version_text(Path(self.dev_dir, VERSION_FILE))
+        return self._get_version_text(raw_text)
 
     def _get_project_version(self) -> str:
-        return self._get_version_text(Path(self.project_dir, VERSION_FILE))
+        raw_text = get_raw_version_text(Path(self.project_dir, VERSION_FILE))
+        return self._get_version_text(raw_text)
+
+    def _get_version_text(self, raw_text: str) -> str:
+        for line in raw_text.split('\n'):
+            if VERSION_TEXT in line and '=' in line:
+                version_text = line.split('=')[1]
+                version_text = version_text.strip()
+                version_text = version_text.replace("'", '')
+                return version_text
+        return 'Version text missing'
+
 
     @property
     def base_dir(self) -> Path:
@@ -83,7 +120,6 @@ class Project():
         version_re = r'^[0-9]{1,}.[0-9]{1,}.[0-9]{1,}$'
         return version if re.match(version_re, version) else err_text
 
-
     @property
     def version_path(self) -> Path:
         return Path(self.project_dir, VERSION_FILE)
@@ -91,29 +127,6 @@ class Project():
     @property
     def pyproject_path(self) -> Path:
         return Path(self.base_dir, PYPROJECT_TOML)
-
-    def _get_version_text(self, path: str) -> str:
-        try:
-            with open(path, 'r', encoding='utf8') as f_version:
-                text = f_version.read()
-                for line in text.split('\n'):
-                    if VERSION_TEXT in line and '=' in line:
-                        version_text = line.split('=')[1]
-                        version_text = version_text.strip()
-                        version_text = version_text.replace("'", '')
-                        return version_text
-        except FileNotFoundError:
-            return 'Version file missing'
-        return 'Version text missing'
-
-    def _get_history(self) -> str:
-
-        try:
-            with open(self.history_path, 'r', encoding='utf8') as f_history:
-                return f_history.read()
-        except FileNotFoundError:
-            print(f'History file missing for {self.name}: {self.history_path}')
-            return ''
 
     def _get_new_history(self) -> str:
         history = self.history.split('\n')
@@ -145,41 +158,32 @@ class Project():
     def _get_pyproject_version(self) -> str:
         default = '-.-.-'
         self.py_project_missing = False
-        try:
-            with open(
-                    self.pyproject_path, 'r', encoding='utf8') as f_pyproject:
-                poetry_text = f_pyproject.read()
-            self._pyproject_list = poetry_text.split('\n')
-            for line in self._pyproject_list:
-                if 'version =' in line:
-                    line_list = line.split('=')
-                    if len(line_list) != 2:
-                        err_str = 'pyproject.toml format error in'
-                        print(f'{err_str} {self.pyproject_path}')
-                        return default
-                    return self._clean_string(line_list[1])
-            return default
-        except FileNotFoundError:
+
+        pyproject_text = get_pyproject_version_text(self.pyproject_path)
+        if not pyproject_text:
             self.py_project_missing = True
             print(f'pyproject.toml missing {self.pyproject_path}')
-        return default
+            return default
+
+        self._pyproject_list = pyproject_text.split('\n')
+        for line in self._pyproject_list:
+            if 'version =' in line:
+                line_list = line.split('=')
+                if len(line_list) != 2:
+                    err_str = 'pyproject.toml format error in'
+                    print(f'{err_str} {self.pyproject_path}')
+                    return default
+                return self._clean_string(line_list[1])
 
     def get_project_data(self) -> None:
         self.dev_version = self._get_dev_version()
         self.project_version = self._get_project_version()
-        self.history = self._get_history()
+        self.history = get_history(self.name, self.history_path)
         self.new_history = self._get_new_history()
         self.pyproject_version = self._get_pyproject_version()
 
     def update_version(self, version: str) -> int:
-        output = f'{VERSION_TEXT} = \'{version}\''
-        try:
-            with open(self.version_path, 'w', encoding='utf8') as f_version:
-                f_version.write(output)
-            return DIALOG_STATUS['ok']
-        except FileNotFoundError:
-            print(f'File missing {self.version_path}')
-            return DIALOG_STATUS['error']
+        return update_version_file(self.version_path, version)
 
     def update_pyproject_version(self, version: str) -> int:
         for index, line in enumerate(self._pyproject_list):
@@ -195,23 +199,10 @@ class Project():
                 output.extend(self._pyproject_list[index+1:])
                 break
 
-        try:
-            with open(
-                    self.pyproject_path, 'w', encoding='utf8') as f_pyproject:
-                f_pyproject.write('\n'.join(output))
-            return DIALOG_STATUS['ok']
-        except FileNotFoundError:
-            print(f'pyproject.toml missing {self.pyproject_path}')
-            return DIALOG_STATUS['error']
+        return update_pyproject_file(self.pyproject_path, output)
 
     def update_history(self, history: str) -> int:
-        try:
-            with open(self.history_path, 'w', encoding='utf8') as f_history:
-                f_history.write(history)
-            return DIALOG_STATUS['ok']
-        except FileNotFoundError:
-            print(f'File missing {self.version_path}')
-            return DIALOG_STATUS['error']
+        return update_history_file(self.history_path, history)
 
     def get_versions(
             self, refresh: bool = False) -> list[dict[EnvironmentVersion]]:
@@ -277,7 +268,7 @@ class ProjectServer():
 
     def _get_projects(self) -> dict[str, Project]:
         project_dict = {}
-        projects_raw = self._read_projects()
+        projects_raw = get_projects(self.project_file)
         for key, item in projects_raw.items():
             project = Project()
             project.name = key
@@ -289,25 +280,11 @@ class ProjectServer():
                                    in item['cached_envs'].items()}
             project.get_project_data()
         return project_dict
-    def _read_projects(self) -> dict:
-        try:
-            with open(self.project_file, 'r', encoding='utf8') as f_projects:
-                try:
-                    return json.load(f_projects)
-                except json.decoder.JSONDecodeError:
-                    return {}
-        except FileNotFoundError:
-            return {}
 
     def save_projects(self, projects: dict[str, Project] = None) -> int:
         if not projects:
             projects = self.projects
+        self.projects = projects
         output = {name: project.serialize()
                   for name, project in projects.items()}
-        try:
-            with open(self.project_file, 'w', encoding='utf8') as f_projects:
-                json.dump(output, f_projects)
-                self.projects = projects
-        except TypeError:
-            return ps.ERROR
-        return ps.OK
+        return save_project_file(self.project_file, output)

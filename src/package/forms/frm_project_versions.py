@@ -14,28 +14,23 @@ import subprocess
 import tkinter as tk
 from tkinter import ttk, messagebox
 from pathlib import Path
-import subprocess
 
 import psiutils as ps
 from psiutils.constants import PAD
-from psiutils.buttons import ButtonFrame, Button
+from psiutils.buttons import ButtonFrame
 from psiutils.utilities import window_resize, geometry
 
-from projects import Project
-from config import get_config
-from compare import compare
+from package.projects import Project
+from package.config import get_config
+from package.compare import compare
 
-from forms.frm_compare import CompareFrame
-from forms.frm_build import BuildFrame
+from package.forms.frm_compare import CompareFrame
+from package.forms.frm_build import BuildFrame
 
 FRAME_TITLE = 'Project compare versions'
 
 DEFAULT_DEV_DIR = str(Path(Path.home(), '.pyenv', 'versions'))
 DEFAULT_PROJECT_DIR = str(Path(Path.home(), 'projects'))
-
-VERSION = 5
-PYTHON_VERSION = 7
-PROJECT = 9
 
 
 class ProjectVersionsFrame():
@@ -54,13 +49,18 @@ class ProjectVersionsFrame():
         parent: The parent window or frame.
         config (dict): Configuration values loaded via `get_config`.
         mode (int): Determines whether fields are editable (e.g., `ps.EDIT`).
-        project (Project): The project currently being displayed and manipulated.
+        project (Project): The project currently being displayed
+            and manipulated.
         projects (list): A list of available projects from the parent.
         save_button: Optional save button (currently unused).
         versions_frame (tk.Frame): Frame containing version selection buttons.
-        button_frame (tk.Frame): Frame containing action buttons (Compare, Build, Exit).
-        project_name, dev_dir, project_dir, project_version, version (tk.StringVar):
-            Tkinter variables bound to GUI widgets, used for user input and display.
+        button_frame (tk.Frame):
+            Frame containing action buttons (Compare, Build, Exit).
+        project_name, dev_dir, project_dir, project_version,
+            version (tk.StringVar):
+
+        Tkinter variables bound to GUI widgets,
+            used for user input and display.
 
     Methods:
         show(): Initializes and lays out the main GUI window.
@@ -68,8 +68,10 @@ class ProjectVersionsFrame():
         _main_frame(master): Creates the main layout frame with widgets.
         _versions_frame(master): Creates the container for version options.
         _button_frame(master): Sets up action buttons.
-        _populate_versions_frame(): Fills the versions frame with radio buttons and version info.
-        _values_changed(*args): Enables/disables buttons based on field changes.
+        _populate_versions_frame(): Fills the versions frame with radio buttons
+            and version info.
+        _values_changed(*args): Enables/disables buttons based on
+            field changes.
         _compare_project(): Launches comparison window for selected version.
         _build_project(): Opens build dialog for selected version.
         _is_valid(): Checks project integrity before building.
@@ -189,7 +191,6 @@ class ProjectVersionsFrame():
 
     def _versions_frame(self, master: tk.Frame) -> tk.Frame:
         return ttk.Frame(master)
-
 
     def _button_frame(self, master: tk.Frame) -> tk.Frame:
         frame = ButtonFrame(master, tk.VERTICAL)
