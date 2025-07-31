@@ -33,18 +33,18 @@ class Project():
         """
 
         self.name: str = ''
-        self.dev_dir: str = ''
+        self.env_dir: str = ''
         self.project_dir: str = ''
-        self._dev_dir_short: str = ''
+        self._env_dir_short: str = ''
         self._project_dir_short: str = ''
-        self.dev_version: str = ''
+        self.env_version: str = ''
         self.project_version: str = ''
         self.pyproject_version: str = ''
         self._base_dir: Path = None
         self.history = ''
         self.new_history = ''
         self._pyproject_list = []
-        self.dev_versions: dict = {}
+        self.env_versions: dict = {}
         self.cached_envs = {}
         self.py_project_missing = True
 
@@ -59,8 +59,8 @@ class Project():
         return f'Project: {self.name}'
 
     @property
-    def dev_dir_short(self) -> str:
-        return self._short_dir(self.dev_dir)
+    def env_dir_short(self) -> str:
+        return self._short_dir(self.env_dir)
 
     @property
     def project_dir_short(self) -> str:
@@ -83,8 +83,8 @@ class Project():
     def _short_dir(long_dir: str) -> str:
         return long_dir.replace(str(Path.home()), '~')
 
-    def _get_dev_version(self) -> str:
-        raw_text = get_raw_version_text(Path(self.dev_dir, VERSION_FILE))
+    def _get_env_version(self) -> str:
+        raw_text = get_raw_version_text(Path(self.env_dir, VERSION_FILE))
         return self._get_version_text(raw_text)
 
     def _get_project_version(self) -> str:
@@ -176,7 +176,7 @@ class Project():
                 return self._clean_string(line_list[1])
 
     def get_project_data(self) -> None:
-        self.dev_version = self._get_dev_version()
+        self.env_version = self._get_env_version()
         self.project_version = self._get_project_version()
         self.history = get_history(self.name, self.history_path)
         self.new_history = self._get_new_history()
