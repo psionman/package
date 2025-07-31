@@ -2,10 +2,10 @@ import sys
 import tkinter as tk
 import contextlib
 
-from constants import ICON_FILE
 from psiutils.widgets import get_styles
-import text
 
+
+from constants import ICON_FILE
 from forms.frm_main import MainFrame
 from module_caller import ModuleCaller
 

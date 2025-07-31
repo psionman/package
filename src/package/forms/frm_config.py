@@ -10,7 +10,7 @@ from psiutils.utilities import window_resize, geometry
 
 from constants import APP_TITLE
 from config import config, save_config, get_config
-import text
+import text as txt
 
 LF = '\n'
 
@@ -31,7 +31,7 @@ class ConfigFrame():
     def show(self):
         root = self.root
         root.geometry(geometry(self.config, __file__))
-        root.title(text.CONFIG)
+        root.title(txt.CONFIG)
 
         root.bind('<Control-x>', self._dismiss)
         root.bind('<Control-s>', self._save_config)
@@ -64,9 +64,9 @@ class ConfigFrame():
         directory.grid(row=row, column=1, columnspan=1, sticky=tk.EW,
                        padx=PAD, pady=PAD)
 
-        # select = ttk.Button(frame, text=f'{text.SELECT}{text.ELLIPSIS}',
+        # select = ttk.Button(frame, text=f'{txt.SELECT}{txt.ELLIPSIS}',
         #                     command=self._set_data_directory)
-        select = IconButton(frame, text=text.OPEN, icon='open',
+        select = IconButton(frame, text=txt.OPEN, icon='open',
                             command=self._set_data_directory)
         select.grid(row=row, column=2, sticky=tk.W, padx=PAD)
 
@@ -122,7 +122,7 @@ class ConfigFrame():
         result = self.write_config()
         if result:
             messagebox.showinfo(title=APP_TITLE,
-                                message=f'{text.CONFIG} saved',
+                                message=f'{txt.CONFIG} saved',
                                 parent=self.root)
         else:
             message = f'Defaults not saved{LF}{result}'

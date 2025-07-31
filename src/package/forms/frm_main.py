@@ -15,7 +15,7 @@ from psiutils.utilities import window_resize, geometry
 
 from projects import ProjectServer
 from config import get_config
-import text
+import text as txt
 
 from main_menu import MainMenu
 from forms.frm_project_edit import ProjectEditFrame
@@ -145,12 +145,12 @@ class MainFrame():
 
     def _context_menu(self) -> tk.Menu:
         menu_items = [
-            MenuItem(text.NEW, self._new_project, dimmable=False),
-            MenuItem(text.EDIT, self._edit_project, dimmable=True),
-            MenuItem(text.CODE, self._open_code, dimmable=True),
-            MenuItem(text.COMPARE, self._compare_project, dimmable=True),
-            MenuItem(text.REFRESH, self._refresh_project, dimmable=True),
-            MenuItem(text.DELETE, self._delete_project, dimmable=True),
+            MenuItem(txt.NEW, self._new_project, dimmable=False),
+            MenuItem(txt.EDIT, self._edit_project, dimmable=True),
+            MenuItem(txt.CODE, self._open_code, dimmable=True),
+            MenuItem(txt.COMPARE, self._compare_project, dimmable=True),
+            MenuItem(txt.REFRESH, self._refresh_project, dimmable=True),
+            MenuItem(txt.DELETE, self._delete_project, dimmable=True),
         ]
         context_menu = Menu(self.root, menu_items)
         context_menu.enable(False)

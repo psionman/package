@@ -12,7 +12,7 @@ from psiutils.buttons import ButtonFrame, Button, IconButton
 from compare import compare
 from config import get_config
 
-import text
+import text as txt
 from projects import Project
 
 FRAME_TITLE = 'Compare files across directories'
@@ -167,8 +167,8 @@ class CompareFrame():
             label.grid(row=row, column=1, sticky=tk.W)
 
             if missing_files[0]:
-                # button = ttk.Button(frame, text=text.COPY)
-                button = IconButton(frame, text.COPY, 'copy_docs')
+                # button = ttk.Button(frame, text=txt.COPY)
+                button = IconButton(frame, txt.COPY, 'copy_docs')
                 button.grid(row=row, column=2, padx=PAD, pady=PADB)
                 button.widget.bind(
                     '<Button-1>', lambda event, arg=None:

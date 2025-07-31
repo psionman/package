@@ -7,7 +7,7 @@ from forms.frm_config import ConfigFrame
 from constants import AUTHOR, APP_TITLE
 from _version import __version__
 
-import text
+import text as txt
 SPACES = ' '*20
 
 
@@ -30,13 +30,13 @@ class MainMenu():
 
     def _file_menu_items(self) -> list:
         return [
-            MenuItem(f'{text.CONFIG}{text.ELLIPSIS}', self._config_frame),
-            MenuItem(text.QUIT, self._dismiss),
+            MenuItem(f'{txt.CONFIG}{txt.ELLIPSIS}', self._config_frame),
+            MenuItem(txt.QUIT, self._dismiss),
         ]
 
     def _help_menu_items(self) -> list:
         return [
-            MenuItem(f'About{text.ELLIPSIS}', self._show_about),
+            MenuItem(f'About{txt.ELLIPSIS}', self._show_about),
         ]
 
     def _config_frame(self) -> None:

@@ -12,7 +12,7 @@ from psiutils.utilities import window_resize, geometry
 from config import config, get_config
 
 from build import update_module
-import text
+import text as txt
 
 FRAME_TITLE = 'Build package'
 
@@ -36,7 +36,7 @@ class BuildFrame():
         self.test_build = tk.BooleanVar(value=False)
 
         if os.getcwd() != self.project.project_dir:
-            self.status.set(text.NOT_IN_PROJECT_DIR)
+            self.status.set(txt.NOT_IN_PROJECT_DIR)
 
         self.show()
 
@@ -130,7 +130,7 @@ class BuildFrame():
                 command=self._build),
             Button(
                 frame,
-                text=text.EXIT,
+                text=txt.EXIT,
                 command=self.__dismiss,
                 sticky=tk.E),
         ]

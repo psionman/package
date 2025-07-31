@@ -24,7 +24,6 @@ from psiutils.utilities import window_resize, geometry
 from projects import Project
 from config import get_config
 from compare import compare
-import text
 
 from forms.frm_compare import CompareFrame
 from forms.frm_build import BuildFrame
@@ -292,6 +291,8 @@ class ProjectVersionsFrame():
         self._populate_versions_frame()
 
     def _get_venv_python(self) -> str:
+        self.project.dev_dir = self.version.get()
+        parts = Path(self.project.dev_dir).parts
         if '.venv' in parts:
             index = parts.index('.venv')
             project_dir = Path(*parts[:index])

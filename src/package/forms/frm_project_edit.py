@@ -10,10 +10,10 @@ from psiutils.constants import PAD
 from psiutils.buttons import ButtonFrame, Button, IconButton
 from psiutils.utilities import window_resize, geometry
 
-from projects import Project, EnvironmentVersion
+from projects import Project
 from config import get_config
 from compare import compare
-import text
+import text as txt
 
 from forms.frm_compare import CompareFrame
 from forms.frm_build import BuildFrame
@@ -109,10 +109,10 @@ class ProjectEditFrame():
         entry = ttk.Entry(frame, textvariable=self.project_dir)
         entry.grid(row=3, column=1, columnspan=2, padx=PAD, sticky=tk.EW)
 
-        # button = ttk.Button(frame, text=text.ELLIPSIS,
+        # button = ttk.Button(frame, text=txt.ELLIPSIS,
         #                     command=self._get_project_dir)
         button = IconButton(
-            frame, text.OPEN, 'open', self._get_project_dir)
+            frame, txt.OPEN, 'open', self._get_project_dir)
         button.grid(row=3, column=3)
 
         self.button_frame = self._button_frame(frame)
