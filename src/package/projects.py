@@ -3,18 +3,18 @@ import os
 from pathlib import Path
 from datetime import datetime
 import re
+import subprocess
 
 from psiutils.constants import DIALOG_STATUS
+from psi_toml.parser import TomlParser
 
 from package.config import config
 
 from package.env_version import EnvironmentVersion
 from package.constants import (
     PYPROJECT_TOML, DATA_DIR, HISTORY_FILE, VERSION_FILE, VERSION_TEXT)
-from package.projects_io import (
-    get_raw_version_text, get_history, get_pyproject_version_text,
-    update_version_file, update_pyproject_file, update_history_file,
-    get_projects, save_project_file)
+
+import package.projects_io as io
 
 class Project():
     """Project class to support the package module."""
@@ -84,11 +84,11 @@ class Project():
         return long_dir.replace(str(Path.home()), '~')
 
     def _get_env_version(self) -> str:
-        raw_text = get_raw_version_text(Path(self.env_dir, VERSION_FILE))
+        raw_text = io.get_raw_version_text(Path(self.env_dir, VERSION_FILE))
         return self._get_version_text(raw_text)
 
     def _get_project_version(self) -> str:
-        raw_text = get_raw_version_text(Path(self.project_dir, VERSION_FILE))
+        raw_text = io.get_raw_version_text(Path(self.project_dir, VERSION_FILE))
         return self._get_version_text(raw_text)
 
     def _get_version_text(self, raw_text: str) -> str:
@@ -103,6 +103,7 @@ class Project():
 
     @property
     def base_dir(self) -> Path:
+        """Return path to base directory of the project."""
         if not self._base_dir:
             self._base_dir = Path(self.project_dir).parent
             if not Path(self._base_dir, 'pyproject.toml').is_file():
@@ -110,11 +111,18 @@ class Project():
         return self._base_dir
 
     @property
+    def requirements_path(self) -> Path:
+        """Return path to requirements file."""
+        return Path(self.base_dir, 'requirements.txt')
+
+    @property
     def history_path(self) -> Path:
+        """Return path to History file."""
         return Path(self.base_dir, HISTORY_FILE)
 
     @property
     def version_text(self) -> str:
+        """Return version as text."""
         err_text = 'Version not found'
         version = self._get_project_version()
         version_re = r'^[0-9]{1,}.[0-9]{1,}.[0-9]{1,}$'
@@ -122,10 +130,12 @@ class Project():
 
     @property
     def version_path(self) -> Path:
+        """Return path to version file."""
         return Path(self.project_dir, VERSION_FILE)
 
     @property
     def pyproject_path(self) -> Path:
+        """Return path to pyprojects file."""
         return Path(self.base_dir, PYPROJECT_TOML)
 
     def _get_new_history(self) -> str:
@@ -136,6 +146,7 @@ class Project():
         return '\n'.join([history[0]] + insertion + history[2:])
 
     def next_version(self) -> str:
+        """Return the next version string."""
         version = self.project_version.split('.')
         if 'missing' in version[0]:
             path = Path(self.project_dir, VERSION_FILE)
@@ -159,7 +170,7 @@ class Project():
         default = '-.-.-'
         self.py_project_missing = False
 
-        pyproject_text = get_pyproject_version_text(self.pyproject_path)
+        pyproject_text = io.get_pyproject_version_text(self.pyproject_path)
         if not pyproject_text:
             self.py_project_missing = True
             print(f'pyproject.toml missing {self.pyproject_path}')
@@ -174,16 +185,18 @@ class Project():
                     print(f'{err_str} {self.pyproject_path}')
                     return default
                 return self._clean_string(line_list[1])
+        return
 
     def get_project_data(self) -> None:
+        """Update project attributes."""
         self.env_version = self._get_env_version()
         self.project_version = self._get_project_version()
-        self.history = get_history(self.name, self.history_path)
+        self.history = io.get_history(self.name, self.history_path)
         self.new_history = self._get_new_history()
         self.pyproject_version = self._get_pyproject_version()
 
     def update_version(self, version: str) -> int:
-        return update_version_file(self.version_path, version)
+        return io.update_version_file(self.version_path, version)
 
     def update_pyproject_version(self, version: str) -> int:
         for index, line in enumerate(self._pyproject_list):
@@ -199,10 +212,10 @@ class Project():
                 output.extend(self._pyproject_list[index+1:])
                 break
 
-        return update_pyproject_file(self.pyproject_path, output)
+        return io.update_pyproject_file(self.pyproject_path, output)
 
     def update_history(self, history: str) -> int:
-        return update_history_file(self.history_path, history)
+        return io.update_history_file(self.history_path, history)
 
     def get_versions(
             self, refresh: bool = False) -> list[dict[EnvironmentVersion]]:
@@ -259,6 +272,95 @@ class Project():
                     env_versions[environment_name] = EnvironmentVersion(data)
         return env_versions
 
+    def update_pyproject(self) -> int:
+        """Create a requirements.txt and update pyproject.tom accordingly."""
+        self._install_pip()
+        self._create_requirements()
+        return self._update_pyproject()
+
+    def _update_pyproject(self) -> int:
+        pyproject = self._read_pyproject()
+
+        dev_dependencies = self._build_dependency_dict(
+            pyproject['dependency-groups']['dev'])
+
+        requirements = self._build_dependency_dict(
+            self._read_requirements())
+
+        for item in dev_dependencies:
+            if item in requirements:
+                del requirements[item]
+
+        for key, item in requirements.items():
+            requirements[key] = item.replace('==', '>=')
+
+        self._write_requirements('\n'.join(list(requirements.values())))
+
+        return subprocess.run(
+                ['uv', 'add', '-r', self.requirements_path,],
+                check=True,
+                cwd=self.base_dir
+            )
+
+    def _build_dependency_dict(self, dependencies: dict) -> dict:
+        output = {}
+        for item in dependencies:
+            if item.startswith('#'):
+                continue
+            if item.startswith('-'):
+                continue
+            if '>' in item:
+                key = item[:item.index('>')]
+                output[key] = item
+            elif '=' in item:
+                key = item[:item.index('=')]
+                output[key] = item
+            else:
+                output[item] = ''
+        return output
+
+    def _read_pyproject(self) -> dict:
+        parser = TomlParser()
+        with open(self.pyproject_path, 'r', encoding='utf-8') as f_pyproject:
+            return parser.load(f_pyproject)
+
+    def _read_requirements(self) -> list[str]:
+        with open(
+                self.requirements_path,
+                'r',
+                encoding='utf-8') as f_requirements:
+            return (f_requirements.read().strip()).split('\n')
+
+    def _write_requirements(self, requirements: str) -> None:
+        with open(
+                self.requirements_path,
+                'w',
+                encoding='utf-8') as f_requirements:
+            f_requirements.write(requirements)
+
+    def _create_requirements(self) -> int:
+        with open(
+                self.requirements_path,
+                'w',
+                encoding='utf-8') as f_requirements:
+            return subprocess.run(
+                [f'{self.base_dir}/.venv/bin/pip3', 'freeze'],
+                stdout=f_requirements,
+                check=True
+            )
+
+    def _install_pip(self) -> int:
+        return subprocess.run(
+                [
+                    f'{self.base_dir}/.venv/bin/python',
+                    '-m',
+                    'ensurepip',
+                    '-U'
+                    ],
+                check=True
+            )
+
+
 
 class ProjectServer():
     """Handle projects."""
@@ -268,7 +370,7 @@ class ProjectServer():
 
     def _get_projects(self) -> dict[str, Project]:
         project_dict = {}
-        projects_raw = get_projects(self.project_file)
+        projects_raw = io.get_projects(self.project_file)
         for key, item in projects_raw.items():
             project = Project()
             project.name = key
@@ -287,4 +389,4 @@ class ProjectServer():
         self.projects = projects
         output = {name: project.serialize()
                   for name, project in projects.items()}
-        return save_project_file(self.project_file, output)
+        return io.save_project_file(self.project_file, output)

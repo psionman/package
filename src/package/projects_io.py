@@ -81,5 +81,5 @@ def save_project_file(project_file:  str, output: dict) -> int:
     try:
         with open(project_file, 'w', encoding='utf8') as f_projects:
             json.dump(output, f_projects)
-    except FileNotFoundError as exc:
+    except FileNotFoundError:
         print(f'Project file not found: {project_file}')

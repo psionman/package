@@ -12,14 +12,15 @@ from psiutils.buttons import ButtonFrame, Button, IconButton
 from psiutils.treeview import sort_treeview
 from psiutils.menus import Menu, MenuItem
 from psiutils.utilities import window_resize, geometry
+import psiutils.text as txt
 
 from projects import ProjectServer
 from config import get_config
-import text as txt
 
 from main_menu import MainMenu
 from forms.frm_project_edit import ProjectEditFrame
 from forms.frm_project_versions import ProjectVersionsFrame
+from forms.frm_build import BuildFrame
 
 FRAME_TITLE = 'Package update and build'
 
@@ -134,6 +135,8 @@ class MainFrame():
         frame.buttons = [
             frame.icon_button('new', False, self._new_project),
             frame.icon_button('edit', True, self._edit_project),
+            frame.icon_button('build', False, self._build_project),
+            frame.icon_button('update', False, self._update_pyproject),
             frame.icon_button('code', True, self._open_code),
             frame.icon_button('compare', True, self._compare_project),
             frame.icon_button('refresh', True, self._refresh_project),
@@ -147,6 +150,8 @@ class MainFrame():
         menu_items = [
             MenuItem(txt.NEW, self._new_project, dimmable=False),
             MenuItem(txt.EDIT, self._edit_project, dimmable=True),
+            MenuItem(txt.BUILD, self._build_project, dimmable=True),
+            MenuItem(txt.UPDATE, self._update_pyproject, dimmable=True),
             MenuItem(txt.CODE, self._open_code, dimmable=True),
             MenuItem(txt.COMPARE, self._compare_project, dimmable=True),
             MenuItem(txt.REFRESH, self._refresh_project, dimmable=True),
@@ -203,6 +208,20 @@ class MainFrame():
             )
             return
         self._populate_tree()
+
+    def _build_project(self, *args) -> None:
+        # if not self._is_valid():
+        #     return
+        dlg = BuildFrame(self, self.project)
+        self.root.wait_window(dlg.root)
+
+    def _update_pyproject(self, *args) -> None:
+        code = self.project.update_pyproject().returncode
+        if code == 0:
+            messagebox.showinfo('', 'Project updated')
+        else:
+            messagebox.showerror(
+                '', f'Project not updated - code: {code}')
 
     def _open_code(self, *args) -> None:
         subprocess.call(['codium', '-n', self.project.base_dir])

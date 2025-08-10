@@ -289,6 +289,7 @@ class ProjectVersionsFrame():
 
         if returncode == 0:
             messagebox.showinfo('', 'Package updated')
+        self.refresh = True
         self._populate_versions_frame()
 
     def _get_venv_python(self) -> str:
