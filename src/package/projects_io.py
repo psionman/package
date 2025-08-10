@@ -1,85 +1,87 @@
+"""I/O operations for projects.py."""
 
 import json
 
-import psiutils as ps
 from psiutils.constants import DIALOG_STATUS
 
-from package.constants import VERSION_TEXT
 
+def read_text_file(path: str) -> str:
+    """
+    Reads and returns the content of a text file.
 
-def _open_text_file(path: str) -> str:
+    Args:
+        path (str): The path to the text file.
+
+    Returns:
+        str: The content of the text file, or DIALOG_STATUS['error']
+        if the file is not found.
+    """
     try:
         with open(path, 'r', encoding='utf8') as f_text:
             return f_text.read()
     except FileNotFoundError:
-        return ''
-
-
-def get_raw_version_text(path: str) -> str:
-    return _open_text_file(path)
-
-
-def get_history(project_name: str, history_path: str) -> str:
-    text = _open_text_file(history_path)
-    if not text:
-        print(f'History missing for {project_name}: {history_path}')
-    return text
-
-
-def get_pyproject_version_text(pyproject_path: str) -> str:
-    text = _open_text_file(pyproject_path)
-    if not text:
-        print(f'pyproject.toml missing {pyproject_path}')
-    return text
-
-
-def update_version_file(version_path: str, version: str) -> int:
-    output = f'{VERSION_TEXT} = \'{version}\''
-    try:
-        with open(version_path, 'w', encoding='utf8') as f_version:
-            f_version.write(output)
-        return DIALOG_STATUS['ok']
-    except FileNotFoundError:
-        print(f'File missing {version_path}')
+        print(f'File not found {path}')
         return DIALOG_STATUS['error']
 
 
+def update_file(pyproject_path: str, output: str) -> int:
+    """
+    Update the file with the provided output.
 
-def update_pyproject_file(pyproject_path: str, output: str) -> int:
+    Args:
+        pyproject_path (str): The path to the file to be updated.
+        output (str): The content to write to the file.
+
+    Returns:
+        int: The status of the update operation (DIALOG_STATUS['ok']
+        or DIALOG_STATUS['error']).
+    """
     try:
         with open(
-                pyproject_path, 'w', encoding='utf8') as f_pyproject:
-            f_pyproject.write('\n'.join(output))
+                pyproject_path, 'w', encoding='utf8') as f_output:
+            f_output.write(output)
         return DIALOG_STATUS['ok']
     except FileNotFoundError:
-        print(f'pyproject.toml missing {pyproject_path}')
+        print(f'File not found {pyproject_path}')
         return DIALOG_STATUS['error']
 
 
-def update_history_file(history_path: str, history: str) -> int:
-    try:
-        with open(history_path, 'w', encoding='utf8') as f_history:
-            f_history.write(history)
-        return DIALOG_STATUS['ok']
-    except FileNotFoundError:
-        print(f'File missing {history_path}')
-        return DIALOG_STATUS['error']
+def read_json_file(path: str) -> dict:
+    """
+    Reads and returns the JSON data from a file.
 
+    Args:
+        path (str): The path to the JSON file.
 
-def get_projects(project_file) -> dict:
+    Returns:
+        dict: The JSON data read from the file, or an empty dictionary
+        if the file is not found or cannot be decoded.
+    """
     try:
-        with open(project_file, 'r', encoding='utf8') as f_projects:
+        with open(path, 'r', encoding='utf8') as f_json:
             try:
-                return json.load(f_projects)
+                return json.load(f_json)
             except json.decoder.JSONDecodeError:
                 return {}
     except FileNotFoundError:
+        print(f'File not found on read: {path}')
         return {}
 
 
-def save_project_file(project_file:  str, output: dict) -> int:
+def update_json_file(path: str, output: dict) -> int:
+    """
+    Update the JSON file with the provided output.
+
+    Args:
+        path (str): The path to the JSON file to be updated.
+        output (dict): The JSON data to write to the file.
+
+    Returns:
+        int: The number of characters written to the file,
+        or DIALOG_STATUS['error'] if the file is not found.
+    """
     try:
-        with open(project_file, 'w', encoding='utf8') as f_projects:
-            json.dump(output, f_projects)
+        with open(path, 'w', encoding='utf8') as f_json:
+            return json.dump(output, f_json)
     except FileNotFoundError:
-        print(f'Project file not found: {project_file}')
+        print(f'File not found on write: {path}')

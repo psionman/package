@@ -16,6 +16,7 @@ from package.constants import (
 
 import package.projects_io as io
 
+
 class Project():
     """Project class to support the package module."""
 
@@ -33,14 +34,13 @@ class Project():
         """
 
         self.name: str = ''
-        self.env_dir: str = ''
         self.project_dir: str = ''
-        self._env_dir_short: str = ''
         self._project_dir_short: str = ''
-        self.env_version: str = ''
+        self._base_dir: Path = None
+        self.env_dir: str = ''
+        self._env_dir_short: str = ''
         self.project_version: str = ''
         self.pyproject_version: str = ''
-        self._base_dir: Path = None
         self.history = ''
         self.new_history = ''
         self._pyproject_list = []
@@ -84,11 +84,13 @@ class Project():
         return long_dir.replace(str(Path.home()), '~')
 
     def _get_env_version(self) -> str:
-        raw_text = io.get_raw_version_text(Path(self.env_dir, VERSION_FILE))
+        print(f'{self.env_dir=}')
+        print(f'{self.name=}')
+        raw_text = io.read_text_file(Path(self.env_dir, VERSION_FILE))
         return self._get_version_text(raw_text)
 
     def _get_project_version(self) -> str:
-        raw_text = io.get_raw_version_text(Path(self.project_dir, VERSION_FILE))
+        raw_text = io.read_text_file(Path(self.project_dir, VERSION_FILE))
         return self._get_version_text(raw_text)
 
     def _get_version_text(self, raw_text: str) -> str:
@@ -170,7 +172,7 @@ class Project():
         default = '-.-.-'
         self.py_project_missing = False
 
-        pyproject_text = io.get_pyproject_version_text(self.pyproject_path)
+        pyproject_text = io.read_text_file(self.pyproject_path)
         if not pyproject_text:
             self.py_project_missing = True
             print(f'pyproject.toml missing {self.pyproject_path}')
@@ -189,14 +191,14 @@ class Project():
 
     def get_project_data(self) -> None:
         """Update project attributes."""
-        self.env_version = self._get_env_version()
         self.project_version = self._get_project_version()
-        self.history = io.get_history(self.name, self.history_path)
+        self.history = io.read_text_file(self.history_path)
         self.new_history = self._get_new_history()
         self.pyproject_version = self._get_pyproject_version()
 
     def update_version(self, version: str) -> int:
-        return io.update_version_file(self.version_path, version)
+        output = f'{VERSION_TEXT} = \'{version}\''
+        return io.update_file(self.version_path, output)
 
     def update_pyproject_version(self, version: str) -> int:
         for index, line in enumerate(self._pyproject_list):
@@ -212,10 +214,10 @@ class Project():
                 output.extend(self._pyproject_list[index+1:])
                 break
 
-        return io.update_pyproject_file(self.pyproject_path, output)
+        return io.update_file(self.pyproject_path, '\n'.join(output))
 
     def update_history(self, history: str) -> int:
-        return io.update_history_file(self.history_path, history)
+        return io.update_file(self.history_path, history)
 
     def get_versions(
             self, refresh: bool = False) -> list[dict[EnvironmentVersion]]:
@@ -325,18 +327,11 @@ class Project():
             return parser.load(f_pyproject)
 
     def _read_requirements(self) -> list[str]:
-        with open(
-                self.requirements_path,
-                'r',
-                encoding='utf-8') as f_requirements:
-            return (f_requirements.read().strip()).split('\n')
+        requirements = io.read_text_file(self.requirements_path).strip()
+        return requirements.split('\n')
 
     def _write_requirements(self, requirements: str) -> None:
-        with open(
-                self.requirements_path,
-                'w',
-                encoding='utf-8') as f_requirements:
-            f_requirements.write(requirements)
+        io.update_file(self.requirements_path, requirements)
 
     def _create_requirements(self) -> int:
         with open(
@@ -350,16 +345,8 @@ class Project():
             )
 
     def _install_pip(self) -> int:
-        return subprocess.run(
-                [
-                    f'{self.base_dir}/.venv/bin/python',
-                    '-m',
-                    'ensurepip',
-                    '-U'
-                    ],
-                check=True
-            )
-
+        path = f'{self.base_dir}/.venv/bin/python'
+        return subprocess.run([path, '-m', 'ensurepip', '-U'  ], check=True)
 
 
 class ProjectServer():
@@ -370,7 +357,7 @@ class ProjectServer():
 
     def _get_projects(self) -> dict[str, Project]:
         project_dict = {}
-        projects_raw = io.get_projects(self.project_file)
+        projects_raw = io.read_json_file(self.project_file)
         for key, item in projects_raw.items():
             project = Project()
             project.name = key
@@ -389,4 +376,4 @@ class ProjectServer():
         self.projects = projects
         output = {name: project.serialize()
                   for name, project in projects.items()}
-        return io.save_project_file(self.project_file, output)
+        return io.update_json_file(self.project_file, output)
