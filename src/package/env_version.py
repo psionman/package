@@ -63,3 +63,10 @@ class EnvironmentVersion():
             project_dir = Path(*parts[:index+2])
             return os.path.join(project_dir, 'bin', 'python')
         return ''
+
+    @property
+    def dir_short(self) -> str:
+        return self._short_dir(self.dir)
+    @staticmethod
+    def _short_dir(long_dir: str) -> str:
+        return long_dir.replace(str(Path.home()), '~')

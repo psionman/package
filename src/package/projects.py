@@ -49,7 +49,6 @@ class Project():
         self.py_project_missing = True
         self._version_text = ''
         self.pypi = False
-        self.env_version = ''
 
     def __repr__(self) -> str:
         """

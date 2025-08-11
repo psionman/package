@@ -12,6 +12,7 @@ from psiutils.buttons import ButtonFrame, IconButton
 from package.compare import compare
 from package.config import get_config
 from package.projects import Project
+from package.env_version import EnvironmentVersion
 
 import package.text as txt
 
@@ -21,26 +22,41 @@ FRAME_TITLE = 'Compare files across directories'
 class CompareFrame():
     """Define the Main frame."""
     def __init__(
-            self, parent: ttk.Frame, project: Project) -> None:
+            self, parent: ttk.Frame,
+            project: Project,
+            env_version: EnvironmentVersion) -> None:
         self.root = tk.Toplevel(parent.root)
         self.parent = parent
         self.project = project
+        self.env_version = env_version
 
         self.config = get_config()
 
+        self.missing_frame = None
+        self.button_frame = None
+
         # Tk Variables
         self.project_name = tk.StringVar(value=project.name)
-        self.env_dir = tk.StringVar(value=project.env_dir_short)
+        self.env_dir = tk.StringVar(value=env_version.dir_short)
         self.project_dir = tk.StringVar(value=project.project_dir_short)
-        self.env_version = tk.StringVar(value=project.env_version)
+        self.env_version_version = tk.StringVar(value=env_version.version)
         self.project_version = tk.StringVar(value=project.project_version)
         self.mismatch = tk.StringVar(value='')
-        self.show()
+        self._show()
 
         self.destroy_widgets = []
         self.compare_project()
 
-    def show(self):
+    def _show(self):
+        self._configure()
+
+        main_frame = self._main_frame(self.root)
+        main_frame.grid(row=0, column=0, sticky=tk.NSEW)
+
+        sizegrip = ttk.Sizegrip(self.root)
+        sizegrip.grid(sticky=tk.SE)
+
+    def _configure(self) -> None:
         root = self.root
         root.geometry(geometry(self.config, __file__))
         root.transient(self.parent.root)
@@ -48,22 +64,27 @@ class CompareFrame():
         root.bind('<Configure>',
                   lambda event, arg=None: window_resize(self, __file__))
 
-        self.root.rowconfigure(2, weight=1)
-        self.root.columnconfigure(0, weight=1)
+        root.rowconfigure(0, weight=1)
+        root.columnconfigure(0, weight=1)
 
-        self.root.title(f'{FRAME_TITLE}')
+        root.title(f'{FRAME_TITLE}')
 
-        project_frame = self._project_frame(self.root)
+    def _main_frame(self, container: ttk.Frame) -> ttk.Frame:
+        frame = ttk.Frame(container)
+        frame.rowconfigure(1, weight=1)
+        frame.columnconfigure(0, weight=1)
+
+        project_frame = self._project_frame(frame)
         project_frame.grid(row=0, column=0, sticky=tk.EW, padx=PAD, pady=PAD)
 
-        self.missing_frame = ttk.Frame(self.root)
-        self.missing_frame.grid(row=2, column=0, sticky=tk.NW, pady=PAD)
+        self.missing_frame = ttk.Frame(frame)
+        self.missing_frame.grid(row=1, column=0, sticky=tk.NW, pady=PAD)
 
-        self.buttons = self._button_frame(self.root)
-        self.buttons.grid(row=998, column=0, sticky=tk.EW, padx=PAD, pady=PAD)
+        self.button_frame = self._button_frame(frame)
+        self.button_frame.grid(
+            row=2, column=0, sticky=tk.EW, padx=PAD, pady=PAD)
 
-        sizegrip = ttk.Sizegrip(self.root)
-        sizegrip.grid(row=999, sticky=tk.SE)
+        return frame
 
     def _project_frame(self, container: ttk.Frame) -> ttk.Frame:
         frame = ttk.Frame(container)
@@ -79,7 +100,7 @@ class CompareFrame():
         label = ttk.Label(frame, text='Dev version')
         label.grid(row=1, column=0, sticky=tk.E)
 
-        entry = ttk.Entry(frame, textvariable=self.env_version,
+        entry = ttk.Entry(frame, textvariable=self.env_version_version,
                           state='readonly')
         entry.grid(row=1, column=1, sticky=tk.EW, padx=PAD)
 
@@ -99,11 +120,6 @@ class CompareFrame():
 
         return frame
 
-    def _main_frame(self) -> ttk.Frame:
-        frame = ttk.Frame(self.root)
-        frame.rowconfigure(0, weight=1)
-        return frame
-
     def _button_frame(self, master: tk.Frame) -> tk.Frame:
         frame = ButtonFrame(master, tk.HORIZONTAL)
         frame.buttons = [
@@ -116,7 +132,7 @@ class CompareFrame():
     def compare_project(self) -> None:
         """Destroy and recreate widgets based on comparison."""
         (missing, mismatches) = compare(
-            self.project.project_dir, self.project.env_dir)
+            self.project.project_dir, self.env_version.dir)
 
         for item in self.destroy_widgets:
             item.destroy()
@@ -158,12 +174,11 @@ class CompareFrame():
         label.grid(row=1, column=1, sticky=tk.W)
         self.destroy_widgets.append(label)
 
-        row = 2
-        for missing_files in missing:
-            label = self._missing_file_label(frame, row, missing_files[0])
-            label.grid(row=row, column=0, padx=PAD, sticky=tk.W)
+        for row, missing_files in enumerate(missing):
+            label = self._missing_file_label(frame, missing_files[0])
+            label.grid(row=row+2, column=0, padx=PAD, sticky=tk.W)
 
-            label = self._missing_file_label(frame, row, missing_files[1])
+            label = self._missing_file_label(frame, missing_files[1])
             label.grid(row=row, column=1, sticky=tk.W)
 
             if missing_files[0]:
@@ -177,7 +192,7 @@ class CompareFrame():
             row += 1
         return frame
 
-    def _missing_file_label(self, frame: ttk.Frame, row: int,
+    def _missing_file_label(self, frame: ttk.Frame,
                             file_name: str) -> ttk.Label:
         style = ''
         if not file_name:
@@ -190,7 +205,6 @@ class CompareFrame():
     def _mismatch_frame(self, container: ttk.Frame,
                         mismatches: list[str]) -> ttk.Frame:
         frame = ttk.Frame(container)
-        frame.grid(row=9, column=0, padx=PAD)
         self.destroy_widgets.append(frame)
 
         label = ttk.Label(frame, text=' Mismatches', style='blue-fg.TLabel')
@@ -203,8 +217,7 @@ class CompareFrame():
             self.destroy_widgets.append(label)
             return frame
 
-        row = 2
-        for item in mismatches:
+        for row, item in enumerate(mismatches):
             button = ttk.Radiobutton(
                 frame,
                 text=item,
@@ -212,14 +225,13 @@ class CompareFrame():
                 variable=self.mismatch,
                 command=self.rb_selected
             )
-            button.grid(row=row, column=0, sticky=tk.W)
+            button.grid(row=row+2, column=0, sticky=tk.W)
             self.destroy_widgets.append(button)
-            row += 1
 
         return frame
 
     def rb_selected(self, *args) -> None:
-        self.buttons.enable(True)
+        self.button_frame.enable(True)
 
     def show_diff(self, *args) -> None:
         file = self.mismatch.get()

@@ -244,7 +244,7 @@ class ProjectVersionsFrame():
                 self.versions_frame,
                 text=display_text,
                 variable=self.version,
-                value=version.dir,
+                value=version.name,
                 style=style,
             )
             button.grid(row=row, column=0, sticky=tk.W)
@@ -261,8 +261,9 @@ class ProjectVersionsFrame():
                 parent=self.root,
             )
             return
-        self.project.env_dir = self.version.get()
-        dlg = CompareFrame(self, self.project)
+
+        env_version = self.project.env_versions[self.version.get()]
+        dlg = CompareFrame(self, self.project, env_version)
         self.root.wait_window(dlg.root)
 
         for widget in self.versions_frame.winfo_children():
