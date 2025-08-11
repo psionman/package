@@ -22,6 +22,7 @@ FRAME_TITLE = 'Project compare versions'
 
 DEFAULT_DEV_DIR = str(Path(Path.home(), '.pyenv', 'versions'))
 DEFAULT_PROJECT_DIR = str(Path(Path.home(), 'projects'))
+DEFAULT_VERSION_TEXT = '0.0.0'
 
 VERSION = 5
 PYTHON_VERSION = 7
@@ -43,26 +44,30 @@ class ProjectEditFrame():
 
         if not project:
             project = Project()
-            project.env_dir = DEFAULT_DEV_DIR
             project.project_dir = DEFAULT_PROJECT_DIR
+            project.version_text = DEFAULT_VERSION_TEXT
+            project.pypi = False
         self.project = project
+
+        self.button_frame = None
 
         # tk variables
         self.project_name = tk.StringVar(value=project.name)
-        self.env_dir = tk.StringVar(value=project.env_dir)
+        # self.env_dir = tk.StringVar(value=project.env_dir)
         self.project_dir = tk.StringVar(value=project.project_dir)
-        self.project_version = tk.StringVar(value=self.project.version_text)
-        self.version = tk.StringVar()
+        self.project_version = tk.StringVar(value=project.version_text)
+        self.version = tk.StringVar(value=project.version_text)
+        self.pypi = tk.BooleanVar(value=project.pypi)
 
         # Trace
-        self.project_name.trace_add('write', self._values_changed)
-        self.env_dir.trace_add('write', self._values_changed)
-        self.project_dir.trace_add('write', self._values_changed)
-        self.version.trace_add('write', self._values_changed)
+        self.project_name.trace_add('write', self._check_value_changed)
+        self.project_dir.trace_add('write', self._check_value_changed)
+        self.version.trace_add('write', self._check_value_changed)
+        self.pypi.trace_add('write', self._check_value_changed)
 
-        self.show()
+        self._show()
 
-    def show(self) -> None:
+    def _show(self) -> None:
         root = self.root
         root.geometry(geometry(self.config, __file__))
         root.title(FRAME_TITLE)
@@ -85,35 +90,42 @@ class ProjectEditFrame():
         frame.rowconfigure(8, weight=1)
         frame.columnconfigure(2, weight=1)
 
+        row = 0
         label = ttk.Label(frame, text='Project name')
-        label.grid(row=0, column=0, sticky=tk.E, pady=PAD)
+        label.grid(row=row, column=0, sticky=tk.E, pady=PAD)
 
         state = 'readonly' if self.mode == ps.EDIT else 'normal'
         entry = ttk.Entry(frame, textvariable=self.project_name, state=state)
-        entry.grid(row=0, column=1, sticky=tk.EW, padx=PAD)
+        entry.grid(row=row, column=1, sticky=tk.EW, padx=PAD)
         entry.focus_set()
 
+        row += 1
         label = ttk.Label(frame, text='(Used to find dirs in virtual envs)')
-        label.grid(row=1, column=1, sticky=tk.W, pady=0)
+        label.grid(row=row, column=1, sticky=tk.W, pady=0)
 
+        row += 1
         label = ttk.Label(frame, text='Current_version')
-        label.grid(row=2, column=0, sticky=tk.E, pady=PAD)
+        label.grid(row=row, column=0, sticky=tk.E, pady=PAD)
 
         entry = ttk.Entry(
             frame, textvariable=self.project_version, state='readonly')
-        entry.grid(row=2, column=1, sticky=tk.EW, padx=PAD)
+        entry.grid(row=row, column=1, sticky=tk.EW, padx=PAD)
 
+        row += 1
         label = ttk.Label(frame, text='Project dir')
-        label.grid(row=3, column=0, sticky=tk.E, pady=PAD)
+        label.grid(row=row, column=0, sticky=tk.E, pady=PAD)
 
         entry = ttk.Entry(frame, textvariable=self.project_dir)
-        entry.grid(row=3, column=1, columnspan=2, padx=PAD, sticky=tk.EW)
+        entry.grid(row=row, column=1, columnspan=2, padx=PAD, sticky=tk.EW)
 
-        # button = ttk.Button(frame, text=txt.ELLIPSIS,
-        #                     command=self._get_project_dir)
         button = IconButton(
             frame, txt.OPEN, 'open', self._get_project_dir)
-        button.grid(row=3, column=3)
+        button.grid(row=row, column=3)
+
+        row += 1
+        check_button = ttk.Checkbutton(
+            frame, text='PyPi project', variable=self.pypi)
+        check_button.grid(row=row, column=1, sticky=tk.W)
 
         self.button_frame = self._button_frame(frame)
         self.button_frame.grid(row=0, column=4, rowspan=9,
@@ -134,9 +146,19 @@ class ProjectEditFrame():
                 initialdir=self.project_dir.get(),
                 parent=self.root,):
             self.project_dir.set(directory)
+            ic (self.project_dir.get())
 
-    def _values_changed(self, *args) -> None:
-        enable = bool(self.project_name.get())
+    def _value_changed(self, *args) -> bool:
+        return (
+            self.project_name.get() != self.project.name or
+            self.version.get() != self.project.version_text or
+            self.project_dir.get() != self.project.project_dir or
+            self.pypi.get() != self.project.pypi or
+            ...
+        )
+
+    def _check_value_changed(self, *args) -> None:
+        enable = bool(self._value_changed())
         self.button_frame.enable(enable)
 
     def _save(self, *args) -> None:
@@ -144,25 +166,11 @@ class ProjectEditFrame():
             self.project = Project()
             self.project.name = self.project_name.get()
         self.project.project_dir = self.project_dir.get()
+        self.project.pypi = self.pypi.get()
         self.parent.project_server.save_projects(self.projects)
         self.project_version.set(self.project.version_text)
         self.status = ps.UPDATED
         self._dismiss()
-
-    def _compare_project(self) -> None:
-        if not Path(self.project.env_dir).is_dir():
-            messagebox.showerror(
-                'Path error',
-                f'{self.project.env_dir} \nis not a directory!',
-                parent=self.root,
-            )
-            return
-        self.project.env_dir = self.version.get()
-        dlg = CompareFrame(self, self.project)
-        self.root.wait_window(dlg.root)
-        for widget in self.versions_frame.winfo_children():
-            widget.destroy()
-        self._populate_versions_frame()
 
     def _build_project(self, *args) -> None:
         dlg = BuildFrame(self, self.project)

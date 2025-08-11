@@ -2,25 +2,23 @@
 """MainFrame for Package compare."""
 import tkinter as tk
 from tkinter import ttk, messagebox
-from pathlib import Path
-from PIL import Image, ImageTk
 import subprocess
 
 import psiutils as ps
 from psiutils.constants import PAD
-from psiutils.buttons import ButtonFrame, Button, IconButton
+from psiutils.buttons import ButtonFrame
 from psiutils.treeview import sort_treeview
 from psiutils.menus import Menu, MenuItem
 from psiutils.utilities import window_resize, geometry
 import psiutils.text as txt
 
-from projects import ProjectServer
-from config import get_config
+from package.projects import ProjectServer
+from package.config import get_config
 
-from main_menu import MainMenu
-from forms.frm_project_edit import ProjectEditFrame
-from forms.frm_project_versions import ProjectVersionsFrame
-from forms.frm_build import BuildFrame
+from package.main_menu import MainMenu
+from package.forms.frm_project_edit import ProjectEditFrame
+from package.forms.frm_project_versions import ProjectVersionsFrame
+from package.forms.frm_build import BuildFrame
 
 FRAME_TITLE = 'Package update and build'
 
@@ -39,11 +37,20 @@ class MainFrame():
         self.project_server = ProjectServer()
         self.projects = self.project_server.projects
         self.project = None
+
+        self.tree = None
+        self.build_button = None
+        self.compare_button = None
+        self.refresh_button = None
+        self.build_menu_item = None
+        self.compare_menu_item = None
+        self.refresh_menu_item = None
+
         # tk variables
 
-        self.show()
+        self._show()
 
-    def show(self):
+    def _show(self):
         root = self.root
         root.geometry(geometry(self.config, __file__))
         root.title(FRAME_TITLE)
@@ -122,6 +129,14 @@ class MainFrame():
             self.button_frame.enable(True)
             self.context_menu.enable(True)
 
+            if not self.project.pypi:
+                self.build_button.disable()
+                self.compare_button.disable()
+                self.refresh_button.disable()
+                self.build_menu_item.disable()
+                self.compare_menu_item.disable()
+                self.refresh_menu_item.disable()
+
             self.config.update('last_project', values[0])
             self.config.save()
 
@@ -132,29 +147,43 @@ class MainFrame():
 
     def _button_frame(self, master: tk.Frame) -> tk.Frame:
         frame = ButtonFrame(master, tk.VERTICAL)
+        self.build_button = frame.icon_button(
+            'build', True, self._build_project)
+        self.compare_button = frame.icon_button(
+            'compare', True, self._compare_project)
+        self.refresh_button = frame.icon_button(
+            'refresh', True, self._refresh_project)
         frame.buttons = [
             frame.icon_button('new', False, self._new_project),
             frame.icon_button('edit', True, self._edit_project),
-            frame.icon_button('build', False, self._build_project),
+            self.build_button,
             frame.icon_button('update', False, self._update_pyproject),
             frame.icon_button('code', True, self._open_code),
-            frame.icon_button('compare', True, self._compare_project),
-            frame.icon_button('refresh', True, self._refresh_project),
+            self.compare_button,
+            self.refresh_button,
             frame.icon_button('delete', True, self._delete_project),
             frame.icon_button('close', False, self._dismiss),
         ]
+        # for button in frame.buttons:
+        #     print(button.text)
         frame.enable(False)
         return frame
 
     def _context_menu(self) -> tk.Menu:
+        self.build_menu_item = MenuItem(
+            txt.BUILD, self._build_project, dimmable=True)
+        self.compare_menu_item = MenuItem(
+            txt.COMPARE, self._compare_project, dimmable=True)
+        self.refresh_menu_item = MenuItem(
+            txt.REFRESH, self._refresh_project, dimmable=True)
         menu_items = [
             MenuItem(txt.NEW, self._new_project, dimmable=False),
             MenuItem(txt.EDIT, self._edit_project, dimmable=True),
-            MenuItem(txt.BUILD, self._build_project, dimmable=True),
+            self.build_menu_item,
             MenuItem(txt.UPDATE, self._update_pyproject, dimmable=True),
             MenuItem(txt.CODE, self._open_code, dimmable=True),
-            MenuItem(txt.COMPARE, self._compare_project, dimmable=True),
-            MenuItem(txt.REFRESH, self._refresh_project, dimmable=True),
+            self.compare_menu_item,
+            self.refresh_menu_item,
             MenuItem(txt.DELETE, self._delete_project, dimmable=True),
         ]
         context_menu = Menu(self.root, menu_items)
@@ -210,8 +239,6 @@ class MainFrame():
         self._populate_tree()
 
     def _build_project(self, *args) -> None:
-        # if not self._is_valid():
-        #     return
         dlg = BuildFrame(self, self.project)
         self.root.wait_window(dlg.root)
 

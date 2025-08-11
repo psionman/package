@@ -47,6 +47,9 @@ class Project():
         self.env_versions: dict = {}
         self.cached_envs = {}
         self.py_project_missing = True
+        self._version_text = ''
+        self.pypi = False
+        self.env_version = ''
 
     def __repr__(self) -> str:
         """
@@ -75,6 +78,7 @@ class Project():
         """
         return {
             'dir': self.project_dir,
+            'pypi': self.pypi,
             'cached_envs': {key: item.serialize()
                             for key, item in self.cached_envs.items()},
             }
@@ -125,10 +129,18 @@ class Project():
     @property
     def version_text(self) -> str:
         """Return version as text."""
+        if self._version_text:
+            return self._version_text
+
         err_text = 'Version not found'
         version = self._get_project_version()
         version_re = r'^[0-9]{1,}.[0-9]{1,}.[0-9]{1,}$'
-        return version if re.match(version_re, version) else err_text
+        self._version_text = version if re.match(version_re, version) else err_text
+        return self._version_text
+
+    @version_text.setter
+    def version_text(self, value: str) -> None:
+        self._version_text = value
 
     @property
     def version_path(self) -> Path:
@@ -364,6 +376,7 @@ class ProjectServer():
             project_dict[key] = project
 
             project.project_dir = item['dir']
+            project.pypi = item['pypi']
             project.cached_envs = {key: EnvironmentVersion(data)
                                    for key, data
                                    in item['cached_envs'].items()}

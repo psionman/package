@@ -7,13 +7,13 @@ import shutil
 
 from psiutils.constants import PAD, PADB
 from psiutils.utilities import window_resize, geometry
-from psiutils.buttons import ButtonFrame, Button, IconButton
+from psiutils.buttons import ButtonFrame, IconButton
 
-from compare import compare
-from config import get_config
+from package.compare import compare
+from package.config import get_config
+from package.projects import Project
 
-import text as txt
-from projects import Project
+import package.text as txt
 
 FRAME_TITLE = 'Compare files across directories'
 
