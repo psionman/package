@@ -1,22 +1,19 @@
 
 """ProjectEditFrame  for <application>."""
-import os
 import tkinter as tk
-from tkinter import ttk, filedialog, messagebox
+from tkinter import ttk, filedialog
 from pathlib import Path
 
 import psiutils as ps
 from psiutils.constants import PAD
-from psiutils.buttons import ButtonFrame, Button, IconButton
+from psiutils.buttons import ButtonFrame, IconButton
 from psiutils.utilities import window_resize, geometry
 
-from projects import Project
-from config import get_config
-from compare import compare
-import text as txt
+from package.projects import Project
+from package.config import get_config
+import package.text as txt
 
-from forms.frm_compare import CompareFrame
-from forms.frm_build import BuildFrame
+from package.forms.frm_build import BuildFrame
 
 FRAME_TITLE = 'Project compare versions'
 
@@ -146,7 +143,6 @@ class ProjectEditFrame():
                 initialdir=self.project_dir.get(),
                 parent=self.root,):
             self.project_dir.set(directory)
-            ic (self.project_dir.get())
 
     def _value_changed(self, *args) -> bool:
         return (

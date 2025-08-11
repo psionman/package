@@ -105,7 +105,6 @@ class Project():
                 return version_text
         return 'Version text missing'
 
-
     @property
     def base_dir(self) -> Path:
         """Return path to base directory of the project."""
@@ -134,7 +133,8 @@ class Project():
         err_text = 'Version not found'
         version = self._get_project_version()
         version_re = r'^[0-9]{1,}.[0-9]{1,}.[0-9]{1,}$'
-        self._version_text = version if re.match(version_re, version) else err_text
+        self._version_text = (version if re.match(version_re, version)
+                              else err_text)
         return self._version_text
 
     @version_text.setter
@@ -357,12 +357,13 @@ class Project():
 
     def _install_pip(self) -> int:
         path = f'{self.base_dir}/.venv/bin/python'
-        return subprocess.run([path, '-m', 'ensurepip', '-U'  ], check=True)
+        return subprocess.run([path, '-m', 'ensurepip', '-U'], check=True)
 
 
 class ProjectServer():
     """Handle projects."""
     def __init__(self) -> None:
+        # pylint: disable=no-member
         self.project_file = Path(DATA_DIR, config.project_file)
         self.projects = self._get_projects()
 

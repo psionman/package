@@ -118,6 +118,7 @@ class MainFrame():
                       project.project_dir_short,)
             item = self.tree.insert('', 'end', values=values)
 
+            # pylint: disable=no-member
             if self.project and project.name == self.project.name:
                 self.tree.selection_set(item)
             elif self.config.last_project == project.name:
