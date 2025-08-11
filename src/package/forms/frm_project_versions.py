@@ -321,7 +321,8 @@ class ProjectVersionsFrame():
         return True
 
     def _open_code(self, *args) -> None:
-        subprocess.call(['codium', '-n', self.version.get()])
+        env_version = self.project.env_versions[self.version.get()]
+        subprocess.call(['codium', '-n', env_version.dir])
 
     def _dismiss(self, *args) -> None:
         """
