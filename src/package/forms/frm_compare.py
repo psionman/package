@@ -236,7 +236,7 @@ class CompareFrame():
     def show_diff(self, *args) -> None:
         file = self.mismatch.get()
         paths = [
-            str(Path(self.project.env_dir, file)),
+            str(Path(self.env_version.dir, file)),
             str(Path(self.project.project_dir, file)),
         ]
 
