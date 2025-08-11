@@ -294,8 +294,8 @@ class ProjectVersionsFrame():
         self._populate_versions_frame()
 
     def _get_venv_python(self) -> str:
-        self.project.env_dir = self.version.get()
-        parts = Path(self.project.env_dir).parts
+        env_version = self.project.env_versions[self.version.get()]
+        parts = Path(env_version.dir).parts
         if '.venv' in parts:
             index = parts.index('.venv')
             project_dir = Path(*parts[:index])
