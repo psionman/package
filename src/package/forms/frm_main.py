@@ -6,7 +6,7 @@ import subprocess
 
 import psiutils as ps
 from psiutils.constants import PAD
-from psiutils.buttons import ButtonFrame
+from psiutils.buttons import ButtonFrame, IconButton
 from psiutils.treeview import sort_treeview
 from psiutils.menus import Menu, MenuItem
 from psiutils.utilities import window_resize, geometry
@@ -153,12 +153,14 @@ class MainFrame():
             'compare', True, self._compare_project)
         self.refresh_button = frame.icon_button(
             'refresh', True, self._refresh_project)
+        konsole_button = IconButton(frame, 'Konsole', 'gear', self._konsole)
         frame.buttons = [
             frame.icon_button('new', False, self._new_project),
             frame.icon_button('edit', True, self._edit_project),
             self.build_button,
             frame.icon_button('update', False, self._update_pyproject),
             frame.icon_button('code', True, self._open_code),
+            konsole_button,
             self.compare_button,
             self.refresh_button,
             frame.icon_button('delete', True, self._delete_project),
@@ -182,6 +184,7 @@ class MainFrame():
             self.build_menu_item,
             MenuItem(txt.UPDATE, self._update_pyproject, dimmable=True),
             MenuItem(txt.CODE, self._open_code, dimmable=True),
+            MenuItem('Konsole', self._konsole, dimmable=True),
             self.compare_menu_item,
             self.refresh_menu_item,
             MenuItem(txt.DELETE, self._delete_project, dimmable=True),
@@ -252,6 +255,9 @@ class MainFrame():
 
     def _open_code(self, *args) -> None:
         subprocess.call(['codium', '-n', self.project.base_dir])
+
+    def _konsole(self, *args) -> None:
+        subprocess.call(['konsole', '--workdir', self.project.base_dir])
 
     def _dismiss(self, *args) -> None:
         self.root.destroy()
