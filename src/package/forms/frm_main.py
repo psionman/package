@@ -257,7 +257,9 @@ class MainFrame():
         subprocess.call(['codium', '-n', self.project.base_dir])
 
     def _konsole(self, *args) -> None:
-        subprocess.call(['konsole', '--workdir', self.project.base_dir])
+        return subprocess.Popen(
+                ['konsole', '--workdir', self.project.base_dir]
+            )
 
     def _dismiss(self, *args) -> None:
         self.root.destroy()
