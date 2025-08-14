@@ -2,17 +2,17 @@ import os
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
-from pathlib import Path
 
 from psiutils.buttons import Button, enable_buttons, ButtonFrame
 from psiutils.widgets import clickable_widget
 from psiutils.constants import PAD, DIALOG_STATUS
 from psiutils.utilities import window_resize, geometry
 
-from config import config, get_config
+from package.psilogger import logger
+from package.config import config, get_config
 
-from build import update_module
-import text as txt
+from package.build import update_module
+import package.text as txt
 
 FRAME_TITLE = 'Build package'
 
@@ -38,9 +38,13 @@ class BuildFrame():
         if os.getcwd() != self.project.project_dir:
             self.status.set(txt.NOT_IN_PROJECT_DIR)
 
-        self.show()
+        self.buttons = None
+        self.history_text = None
 
-    def show(self) -> None:
+        self._show()
+
+    def _show(self) -> None:
+        # pylint: disable=no-member)
         root = self.root
         root.geometry(geometry(self.config, __file__))
         root.transient(self.parent.root)
@@ -155,6 +159,10 @@ class BuildFrame():
                 parent=self.root
             )
         else:
+            logger.warning(
+                "Build process error",
+                project=self.project.name,
+            )
             messagebox.showerror(
                 'Module update',
                 'Module not updated',
