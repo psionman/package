@@ -10,10 +10,9 @@ dependencies = [
     "appdirs>=1.4.4",
     "icecream>=2.1.4",
     "markdown>=3.8",
-    "psi-toml>=0.0.5",
-    "psiconfig>=0.0.13",
-    "psiutils>=0.1.54",
+    "psiutils>=0.1.69",
     "python-dateutil>=2.9.0.post0",
+    "structlog>=25.4.0",
     "tkinterweb>=4.3.1",
 ]
 

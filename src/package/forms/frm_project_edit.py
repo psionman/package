@@ -9,6 +9,7 @@ from psiutils.constants import PAD
 from psiutils.buttons import ButtonFrame, IconButton
 from psiutils.utilities import window_resize, geometry
 
+from package.psilogger import logger
 from package.projects import Project
 from package.config import get_config
 import package.text as txt
@@ -84,7 +85,6 @@ class ProjectEditFrame():
 
     def _main_frame(self, master: tk.Frame) -> ttk.Frame:
         frame = ttk.Frame(master)
-        frame.rowconfigure(8, weight=1)
         frame.columnconfigure(2, weight=1)
 
         row = 0
@@ -124,13 +124,17 @@ class ProjectEditFrame():
             frame, text='PyPi project', variable=self.pypi)
         check_button.grid(row=row, column=1, sticky=tk.W)
 
+        row += 1
+        frame.rowconfigure(row, weight=1)
+
+        row += 1
         self.button_frame = self._button_frame(frame)
-        self.button_frame.grid(row=0, column=4, rowspan=9,
-                               sticky=tk.NS, padx=PAD, pady=PAD)
+        self.button_frame.grid(row=row, column=0, columnspan=4,
+                               sticky=tk.EW, padx=PAD, pady=PAD)
         return frame
 
     def _button_frame(self, master: tk.Frame) -> tk.Frame:
-        frame = ButtonFrame(master, tk.VERTICAL)
+        frame = ButtonFrame(master, tk.HORIZONTAL)
         frame.buttons = [
             frame.icon_button('save', True, self._save),
             frame.icon_button('exit', False, self._dismiss),
@@ -158,15 +162,34 @@ class ProjectEditFrame():
         self.button_frame.enable(enable)
 
     def _save(self, *args) -> None:
+        changes = self._record_changes()
         if self.mode == ps.NEW:
             self.project = Project()
             self.project.name = self.project_name.get()
         self.project.project_dir = self.project_dir.get()
         self.project.pypi = self.pypi.get()
+
+        logger.info(
+            "Project changed",
+            changes=changes
+        )
+
         self.parent.project_server.save_projects(self.projects)
         self.project_version.set(self.project.version_text)
         self.status = ps.UPDATED
         self._dismiss()
+
+    def _record_changes(self) -> dict:
+        changes = {}
+        if self.project.name != self.project_name.get():
+            changes['project_name'] = (
+                self.project.name, self.project_name.get())
+        if self.project.project_dir != self.project_dir.get():
+            changes['project_dir'] = (
+                 self.project.project_dir, self.project_dir.get())
+        if self.project.pypi != self.pypi.get():
+            changes['pypi'] = (self.project.pypi, self.pypi.get())
+        return changes
 
     def _build_project(self, *args) -> None:
         dlg = BuildFrame(self, self.project)

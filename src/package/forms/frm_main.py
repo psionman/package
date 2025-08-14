@@ -126,6 +126,7 @@ class MainFrame():
 
     def _tree_clicked(self, *args) -> None:
         if values := self.tree.item(self.tree.selection())['values']:
+
             self.project = self.projects[values[0]]
             self.button_frame.enable(True)
             self.context_menu.enable(True)

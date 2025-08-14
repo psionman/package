@@ -2,21 +2,22 @@
 
 import tkinter as tk
 from tkinter import ttk, messagebox, filedialog
-from pathlib import Path
 
-from psiutils.buttons import Button, ButtonFrame, IconButton
+from psiutils.buttons import ButtonFrame, IconButton
 from psiutils.constants import PAD
 from psiutils.utilities import window_resize, geometry
 
-from constants import APP_TITLE
-from config import config, save_config, get_config
-import text as txt
+from package.psilogger import logger
+from package.constants import APP_TITLE
+from package.config import config, get_config
+import package.text as txt
 
 LF = '\n'
 
 
 class ConfigFrame():
     def __init__(self, parent):
+        # pylint: disable=no-member
         self.root = tk.Toplevel(parent.root)
         self.config = get_config()
         self.parent = parent
@@ -26,9 +27,10 @@ class ConfigFrame():
 
         self.data_directory.trace_add('write', self._check_value_changed)
 
-        self.show()
+        self.button_frame = None
+        self._show()
 
-    def show(self):
+    def _show(self):
         root = self.root
         root.geometry(geometry(self.config, __file__))
         root.title(txt.CONFIG)
@@ -50,6 +52,7 @@ class ConfigFrame():
         sizegrip.grid(sticky=tk.SE)
 
     def _main_frame(self, master: tk.Frame) -> tk.Frame:
+        # pylint: disable=no-member
         frame = ttk.Frame(master)
 
         frame.rowconfigure(2, weight=1)
@@ -63,9 +66,6 @@ class ConfigFrame():
                               textvariable=self.data_directory)
         directory.grid(row=row, column=1, columnspan=1, sticky=tk.EW,
                        padx=PAD, pady=PAD)
-
-        # select = ttk.Button(frame, text=f'{txt.SELECT}{txt.ELLIPSIS}',
-        #                     command=self._set_data_directory)
         select = IconButton(frame, txt.OPEN, icon='open',
                             command=self._set_data_directory)
         select.grid(row=row, column=2, sticky=tk.W, padx=PAD)
@@ -84,7 +84,7 @@ class ConfigFrame():
         row += 1
         self.button_frame = self._button_frame(frame)
         self.button_frame.grid(row=row, column=0, columnspan=3,
-                          sticky=tk.EW, padx=PAD, pady=PAD)
+                               sticky=tk.EW, padx=PAD, pady=PAD)
         self.button_frame.disable()
         return frame
 
@@ -98,15 +98,11 @@ class ConfigFrame():
         return frame
 
     def _value_changed(self, *args) -> bool:
-        ignore_text = self.ignore_text.get('0.0', tk.END)
-        return (
-            self.data_directory.get() != self.config.data_directory or
-            ignore_text != '\n'.join(self.config.ignore) or
-            ...
-        )
+        return bool(self._config_changes())
 
     def _check_value_changed(self, *args) -> None:
-        enable = bool(self._value_changed())
+        enable = self._value_changed()
+        ic(enable)
         self.button_frame.enable(enable)
 
     def _set_data_directory(self) -> None:
@@ -120,7 +116,7 @@ class ConfigFrame():
     def _save_config(self, *args) -> None:
         """Save defaults to config."""
         result = self.write_config()
-        if result:
+        if result == 0:
             messagebox.showinfo(title=APP_TITLE,
                                 message=f'{txt.CONFIG} saved',
                                 parent=self.root)
@@ -131,15 +127,30 @@ class ConfigFrame():
         self._dismiss()
 
     def write_config(self):
-        # Files
-        config.update('data_directory',  self.data_directory.get())
+        changes = self._config_changes()
+
+        for key, new_value in changes.items():
+            changes[key] = (self.config.config[key], new_value)
+            self.config.update(key, new_value)
+
+        logger.info(
+            "Config saved",
+            changes=changes
+        )
+
+        return self.config.save()
+
+    def _config_changes(self) -> dict:
+        changes = {}
+        if self.config.config['data_directory'] != self.data_directory.get():
+            changes['data_directory'] = self.data_directory.get()
 
         ignore_text = self.ignore_text.get('0.0', tk.END)
         ignore_text = ignore_text.strip('\n')
-        config.update('ignore', ignore_text.split('\n'))
-
-        result = save_config(config)
-        return result
+        ignore_text = ignore_text.split('\n')
+        if self.config.config['ignore'] != ignore_text:
+            changes['ignore'] = ignore_text
+        return changes
 
     def _dismiss(self) -> None:
         self.root.destroy()
