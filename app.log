@@ -1,9 +1,0 @@
-{"changes": {"ignore": [["__pycache__"], ["__pycache__", "eee"]]}, "event": "Config saved", "timestamp": "2025-08-14T12:48:35.589674Z", "level": "info", "logger": "forms.frm_config"}
-{"changes": {"ignore": [["__pycache__", "eee"], ["__pycache__"]]}, "event": "Config saved", "timestamp": "2025-08-14T12:48:52.336338Z", "level": "info", "logger": "forms.frm_config"}
-{"changes": {}, "event": "Project changed", "timestamp": "2025-08-14T13:02:16.334776Z", "level": "info", "logger": "package.forms.frm_project_edit"}
-{"changes": {}, "event": "Project changed", "timestamp": "2025-08-14T13:17:56.648041Z", "level": "info", "logger": "package.forms.frm_project_edit"}
-{"changes": {}, "event": "Project changed", "timestamp": "2025-08-14T13:18:03.262524Z", "level": "info", "logger": "package.forms.frm_project_edit"}
-{"changes": {}, "event": "Project changed", "timestamp": "2025-08-14T13:19:24.639640Z", "level": "info", "logger": "package.forms.frm_project_edit"}
-{"changes": {}, "event": "Project changed", "timestamp": "2025-08-14T13:20:06.286806Z", "level": "info", "logger": "package.forms.frm_project_edit"}
-{"changes": {"pypi": [true, false]}, "event": "Project changed", "timestamp": "2025-08-14T13:20:39.909407Z", "level": "info", "logger": "package.forms.frm_project_edit"}
-{"changes": {"pypi": [false, true]}, "event": "Project changed", "timestamp": "2025-08-14T13:20:47.672551Z", "level": "info", "logger": "package.forms.frm_project_edit"}
