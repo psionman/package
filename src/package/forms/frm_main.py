@@ -247,7 +247,7 @@ class MainFrame():
         self.root.wait_window(dlg.root)
 
     def _update_pyproject(self, *args) -> None:
-        code = self.project.update_pyproject().returncode
+        code = self.project.update_pyproject()
         if code == 0:
             messagebox.showinfo('', 'Project updated')
         else:

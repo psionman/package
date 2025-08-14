@@ -305,6 +305,10 @@ class Project():
 
         requirements = self._build_dependency_dict(
             self._read_requirements())
+        logger.info(
+            "Update project: read requirements",
+            project=self.name,
+        )
 
         for item in dev_dependencies:
             if item in requirements:
@@ -315,11 +319,23 @@ class Project():
 
         self._write_requirements('\n'.join(list(requirements.values())))
 
-        return subprocess.run(
+        code = subprocess.run(
                 ['uv', 'add', '-r', self.requirements_path,],
                 check=True,
                 cwd=self.base_dir
+            ).returncode
+        if code == 0:
+            logger.info(
+                "Update project: requirements added",
+                project=self.name,
             )
+        else:
+            logger.warning(
+                "Update project: read requirements failed",
+                project=self.name,
+            )
+        return code
+
 
     def _build_dependency_dict(self, dependencies: dict) -> dict:
         output = {}
@@ -355,15 +371,23 @@ class Project():
                 self.requirements_path,
                 'w',
                 encoding='utf-8') as f_requirements:
-            return subprocess.run(
+            subprocess.run(
                 [f'{self.base_dir}/.venv/bin/pip3', 'freeze'],
                 stdout=f_requirements,
                 check=True
             )
+            logger.info(
+                "Update project: requirements_created",
+                project=self.name,
+            )
 
     def _install_pip(self) -> int:
         path = f'{self.base_dir}/.venv/bin/python'
-        return subprocess.run([path, '-m', 'ensurepip', '-U'], check=True)
+        if subprocess.run([path, '-m', 'ensurepip', '-U'], check=True):
+            logger.info(
+                "Update project: pip installed",
+                project=self.name,
+            )
 
 
 class ProjectServer():
