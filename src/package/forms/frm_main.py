@@ -124,22 +124,26 @@ class MainFrame():
                 self.tree.selection_set(item)
 
     def _tree_clicked(self, *args) -> None:
-        if values := self.tree.item(self.tree.selection())['values']:
+        if not (values := self.tree.item(self.tree.selection())['values']):
+            return
 
-            self.project = self.projects[values[0]]
-            self.button_frame.enable(True)
-            self.context_menu.enable(True)
+        self.project = self.projects[values[0]]
+        self.button_frame.enable(True)
+        self.context_menu.enable(True)
 
-            if not self.project.pypi:
-                self.build_button.disable()
-                self.compare_button.disable()
-                self.refresh_button.disable()
-                self.build_menu_item.disable()
-                self.compare_menu_item.disable()
-                self.refresh_menu_item.disable()
+        if not self.project.pypi:
+            self._disable_non_pypi_buttons()
 
-            self.config.update('last_project', values[0])
-            self.config.save()
+        self.config.update('last_project', values[0])
+        self.config.save()
+
+    def _disable_non_pypi_buttons(self) -> None:
+        self.build_button.disable()
+        self.compare_button.disable()
+        self.refresh_button.disable()
+        self.build_menu_item.disable()
+        self.compare_menu_item.disable()
+        self.refresh_menu_item.disable()
 
     def _show_context_menu(self, event) -> None:
         self.context_menu.tk_popup(event.x_root, event.y_root)

@@ -306,7 +306,7 @@ class Project():
         requirements = self._build_dependency_dict(
             self._read_requirements())
         logger.info(
-            "Update project: read requirements",
+            "Update project dependencies: read requirements",
             project=self.name,
         )
 
@@ -326,12 +326,12 @@ class Project():
             ).returncode
         if code == 0:
             logger.info(
-                "Update project: requirements added",
+                "Update project dependencies: requirements added",
                 project=self.name,
             )
         else:
             logger.warning(
-                "Update project: read requirements failed",
+                "Update project dependencies: read requirements failed",
                 project=self.name,
             )
         return code
@@ -377,7 +377,7 @@ class Project():
                 check=True
             )
             logger.info(
-                "Update project: requirements_created",
+                "Update project dependencies: requirements_created",
                 project=self.name,
             )
 
@@ -385,7 +385,7 @@ class Project():
         path = f'{self.base_dir}/.venv/bin/python'
         if subprocess.run([path, '-m', 'ensurepip', '-U'], check=True):
             logger.info(
-                "Update project: pip installed",
+                "Update project dependencies: pip installed",
                 project=self.name,
             )
 
