@@ -20,6 +20,7 @@ from psiutils.constants import PAD
 from psiutils.buttons import ButtonFrame
 from psiutils.utilities import window_resize, geometry
 
+from package.psilogger import logger
 from package.projects import Project
 from package.config import get_config
 from package.compare import compare
@@ -129,7 +130,7 @@ class ProjectVersionsFrame():
         title, geometry, and resizing behaviour. Builds the main interface
         frame and adds a size grip for window resizing.
 
-        Typically called during initialisation to render the window.
+        Typically called during initialization to render the window.
         """
         root = self.root
         root.geometry(geometry(self.config, __file__))
@@ -271,6 +272,11 @@ class ProjectVersionsFrame():
         self._populate_versions_frame()
 
     def _update_project(self) -> None:
+        logger.info(
+            "Update .venv dependencies",
+            dependency=self.version.get(),
+            project=self.project.name,
+        )
         venv_python = self._get_venv_python()
 
         # Use the venv's python to run pip
@@ -281,6 +287,11 @@ class ProjectVersionsFrame():
 
         result = subprocess.run(command, check=True)
         returncode += result.returncode
+        logger.info(
+            "Update .venv dependencies install pip",
+            dependency=self.version.get(),
+            project=self.project.name,
+        )
 
         # upgrade package
         name = self.project.name
@@ -290,11 +301,23 @@ class ProjectVersionsFrame():
 
         if returncode == 0:
             messagebox.showinfo('', 'Package updated')
+            logger.info(
+                "Update .venv dependencies update package",
+                dependency=self.version.get(),
+                project=self.project.name,
+            )
+        else:
+            logger.warning(
+                "Update .venv dependencies update package failed",
+                dependency=self.project.env_versions[self.version.get()],
+                project=self.project.name,
+            )
+
         self.refresh = True
         self._populate_versions_frame()
 
     def _get_venv_python(self) -> str:
-        env_version = self.project.env_versions[self.version.get()]
+        env_version = self.version.get()
         parts = Path(env_version.dir).parts
         if '.venv' in parts:
             index = parts.index('.venv')
