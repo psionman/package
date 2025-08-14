@@ -147,18 +147,8 @@ class ProjectEditFrame():
                 initialdir=self.project_dir.get(),
                 parent=self.root,):
             self.project_dir.set(directory)
-
-    def _value_changed(self, *args) -> bool:
-        return (
-            self.project_name.get() != self.project.name or
-            self.version.get() != self.project.version_text or
-            self.project_dir.get() != self.project.project_dir or
-            self.pypi.get() != self.project.pypi or
-            ...
-        )
-
     def _check_value_changed(self, *args) -> None:
-        enable = bool(self._value_changed())
+        enable = self._record_changes()
         self.button_frame.enable(enable)
 
     def _save(self, *args) -> None:

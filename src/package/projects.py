@@ -8,6 +8,7 @@ import subprocess
 from psiutils.constants import DIALOG_STATUS
 from psi_toml.parser import TomlParser
 
+from package.psilogger import logger
 from package.config import config
 
 from package.env_version import EnvironmentVersion
@@ -287,6 +288,11 @@ class Project():
 
     def update_pyproject(self) -> int:
         """Create a requirements.txt and update pyproject.tom accordingly."""
+
+        logger.info(
+            "Starting update process",
+            project=self.name,
+        )
         self._install_pip()
         self._create_requirements()
         return self._update_pyproject()

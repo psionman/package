@@ -106,7 +106,6 @@ class MainFrame():
                          command=lambda c=col_key:
                          sort_treeview(tree, c, False))
             tree.column(col_key, width=col_width, anchor=tk.W)
-        # tree.column(<'right-align-column-name'>, stretch=0, anchor=tk.E)
         return tree
 
     def _populate_tree(self) -> None:
