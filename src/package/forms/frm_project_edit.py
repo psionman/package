@@ -166,6 +166,11 @@ class ProjectEditFrame():
         if self.mode == ps.NEW:
             self.project = Project()
             self.project.name = self.project_name.get()
+
+            logger.info(
+                "New project",
+                name=self.project.name
+            )
         self.project.project_dir = self.project_dir.get()
         self.project.pypi = self.pypi.get()
 
