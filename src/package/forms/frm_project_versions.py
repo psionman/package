@@ -300,6 +300,7 @@ class ProjectVersionsFrame():
         returncode += result.returncode
 
         if returncode == 0:
+            self._populate_versions_frame()
             messagebox.showinfo('', 'Package updated')
             logger.info(
                 "Update .venv dependencies update package",
@@ -314,10 +315,9 @@ class ProjectVersionsFrame():
             )
 
         self.refresh = True
-        self._populate_versions_frame()
 
     def _get_venv_python(self) -> str:
-        env_version = self.version.get()
+        env_version = self.project.env_versions[self.version.get()]
         parts = Path(env_version.dir).parts
         if '.venv' in parts:
             index = parts.index('.venv')

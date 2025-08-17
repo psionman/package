@@ -3,6 +3,9 @@
 import json
 
 from psiutils.constants import DIALOG_STATUS
+# from psiutils.logger import logger
+
+from psilogger import logger
 
 
 def read_text_file(path: str) -> str:
@@ -20,7 +23,7 @@ def read_text_file(path: str) -> str:
         with open(path, 'r', encoding='utf8') as f_text:
             return f_text.read()
     except FileNotFoundError:
-        print(f'File not found {path}')
+        logger.error(f'File not found {path}')
         return DIALOG_STATUS['error']
 
 
@@ -42,7 +45,7 @@ def update_file(pyproject_path: str, output: str) -> int:
             f_output.write(output)
         return DIALOG_STATUS['ok']
     except FileNotFoundError:
-        print(f'File not found {pyproject_path}')
+        logger.error(f'File not found {pyproject_path}')
         return DIALOG_STATUS['error']
 
 
