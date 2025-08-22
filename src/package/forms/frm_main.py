@@ -42,9 +42,12 @@ class MainFrame():
         self.build_button = None
         self.compare_button = None
         self.refresh_button = None
+        self.script_button = None
+
         self.build_menu_item = None
         self.compare_menu_item = None
         self.refresh_menu_item = None
+        self.script_menu_item = None
 
         # tk variables
 
@@ -131,6 +134,12 @@ class MainFrame():
         self.button_frame.enable(True)
         self.context_menu.enable(True)
 
+        self.script_button.disable()
+        self.script_menu_item.disable()
+        if self.project.script:
+            self.script_button.enable()
+            self.script_menu_item.enable()
+
         if not self.project.pypi:
             self._disable_non_pypi_buttons()
 
@@ -159,6 +168,8 @@ class MainFrame():
         self.refresh_button = frame.icon_button(
             'refresh', True, self._refresh_project)
         konsole_button = IconButton(frame, 'Konsole', 'gear', self._konsole)
+        self.script_button = IconButton(
+            frame, 'Script', 'script', self._script)
         frame.buttons = [
             frame.icon_button('new', False, self._new_project),
             frame.icon_button('edit', True, self._edit_project),
@@ -166,13 +177,13 @@ class MainFrame():
             frame.icon_button('update', False, self._update_pyproject),
             frame.icon_button('code', True, self._open_code),
             konsole_button,
+            self.script_button,
             self.compare_button,
             self.refresh_button,
             frame.icon_button('delete', True, self._delete_project),
             frame.icon_button('close', False, self._dismiss),
         ]
-        # for button in frame.buttons:
-        #     print(button.text)
+        self.script_button.disable()
         frame.enable(False)
         return frame
 
@@ -183,6 +194,8 @@ class MainFrame():
             txt.COMPARE, self._compare_project, dimmable=True)
         self.refresh_menu_item = MenuItem(
             txt.REFRESH, self._refresh_project, dimmable=True)
+        self.script_menu_item = MenuItem(
+            txt.SCRIPT, self._script, dimmable=True)
         menu_items = [
             MenuItem(txt.NEW, self._new_project, dimmable=False),
             MenuItem(txt.EDIT, self._edit_project, dimmable=True),
@@ -190,6 +203,7 @@ class MainFrame():
             MenuItem(txt.UPDATE, self._update_pyproject, dimmable=True),
             MenuItem(txt.CODE, self._open_code, dimmable=True),
             MenuItem('Konsole', self._konsole, dimmable=True),
+            self.script_menu_item,
             self.compare_menu_item,
             self.refresh_menu_item,
             MenuItem(txt.DELETE, self._delete_project, dimmable=True),
@@ -264,6 +278,11 @@ class MainFrame():
     def _konsole(self, *args) -> None:
         return subprocess.Popen(
                 ['konsole', '--workdir', self.project.base_dir]
+            )
+
+    def _script(self, *args) -> None:
+        return subprocess.Popen(
+                ['kate', self.project.script]
             )
 
     def _dismiss(self, *args) -> None:

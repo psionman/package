@@ -7,8 +7,8 @@ import subprocess
 
 from psiutils.constants import DIALOG_STATUS
 from psi_toml.parser import TomlParser
+from psiutils.utilities import logger
 
-from package.psilogger import logger
 from package.config import config
 
 from package.env_version import EnvironmentVersion
@@ -49,6 +49,7 @@ class Project():
         self.cached_envs = {}
         self.py_project_missing = True
         self._version_text = ''
+        self.script: str = ''
         self.pypi = False
 
     def __repr__(self) -> str:
@@ -81,6 +82,7 @@ class Project():
             'pypi': self.pypi,
             'cached_envs': {key: item.serialize()
                             for key, item in self.cached_envs.items()},
+            'script': self.script,
             }
 
     @staticmethod
@@ -410,6 +412,8 @@ class ProjectServer():
             project.cached_envs = {key: EnvironmentVersion(data)
                                    for key, data
                                    in item['cached_envs'].items()}
+            if 'script' in item:
+                project.script = item['script']
             project.get_project_data()
         return project_dict
 

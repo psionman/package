@@ -6,9 +6,8 @@ from tkinter import messagebox
 from psiutils.buttons import Button, enable_buttons, ButtonFrame
 from psiutils.widgets import clickable_widget
 from psiutils.constants import PAD, DIALOG_STATUS
-from psiutils.utilities import window_resize, geometry
+from psiutils.utilities import window_resize, geometry, logger
 
-from package.psilogger import logger
 from package.config import config, get_config
 
 from package.build import update_module

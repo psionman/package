@@ -5,9 +5,8 @@ from tkinter import ttk, messagebox, filedialog
 
 from psiutils.buttons import ButtonFrame, IconButton
 from psiutils.constants import PAD
-from psiutils.utilities import window_resize, geometry
+from psiutils.utilities import window_resize, geometry, logger
 
-from package.psilogger import logger
 from package.constants import APP_TITLE
 from package.config import config, get_config
 import package.text as txt
@@ -24,8 +23,10 @@ class ConfigFrame():
         self.ignore_text = None
 
         self.data_directory = tk.StringVar(value=config.data_directory)
+        self.script_directory = tk.StringVar(value=config.script_directory)
 
         self.data_directory.trace_add('write', self._check_value_changed)
+        self.script_directory.trace_add('write', self._check_value_changed)
 
         self.button_frame = None
         self._show()
@@ -55,12 +56,11 @@ class ConfigFrame():
         # pylint: disable=no-member
         frame = ttk.Frame(master)
 
-        frame.rowconfigure(2, weight=1)
         frame.columnconfigure(1, weight=1)
 
         row = 0
         label = ttk.Label(frame, text="Data directory:")
-        label.grid(row=0, column=0, sticky=tk.E)
+        label.grid(row=row, column=0, sticky=tk.E)
 
         directory = ttk.Entry(frame,
                               textvariable=self.data_directory)
@@ -71,11 +71,24 @@ class ConfigFrame():
         select.grid(row=row, column=2, sticky=tk.W, padx=PAD)
 
         row += 1
+        label = ttk.Label(frame, text="Script directory:")
+        label.grid(row=row, column=0, sticky=tk.E)
+
+        directory = ttk.Entry(frame,
+                              textvariable=self.script_directory)
+        directory.grid(row=row, column=1, columnspan=1, sticky=tk.EW,
+                       padx=PAD, pady=PAD)
+        select = IconButton(frame, txt.OPEN, icon='open',
+                            command=self._set_script_directory)
+        select.grid(row=row, column=2, sticky=tk.W, padx=PAD, pady=PAD)
+
+        row += 1
         label = ttk.Label(frame, text='Ignore')
         label.grid(row=row, column=0, sticky=tk.W, padx=PAD, pady=PAD)
 
         row += 1
-        self.ignore_text = tk.Text(frame, height=20)
+        frame.rowconfigure(row, weight=1)
+        self.ignore_text = tk.Text(frame)
         self.ignore_text.grid(row=row, column=0, columnspan=3,
                               sticky=tk.NSEW, padx=PAD)
         self.ignore_text.insert('0.0', '\n'.join(self.config.ignore))
@@ -102,7 +115,6 @@ class ConfigFrame():
 
     def _check_value_changed(self, *args) -> None:
         enable = self._value_changed()
-        ic(enable)
         self.button_frame.enable(enable)
 
     def _set_data_directory(self) -> None:
@@ -112,6 +124,14 @@ class ConfigFrame():
         )
         if directory:
             self.data_directory.set(directory)
+
+    def _set_script_directory(self) -> None:
+        directory = filedialog.askdirectory(
+            initialdir=self.script_directory.get(),
+            parent=self.root,
+        )
+        if directory:
+            self.script_directory.set(directory)
 
     def _save_config(self, *args) -> None:
         """Save defaults to config."""
@@ -144,6 +164,8 @@ class ConfigFrame():
         changes = {}
         if self.config.config['data_directory'] != self.data_directory.get():
             changes['data_directory'] = self.data_directory.get()
+        if self.config.config['script_directory'] != self.script_directory.get():
+            changes['script_directory'] = self.script_directory.get()
 
         ignore_text = self.ignore_text.get('0.0', tk.END)
         ignore_text = ignore_text.strip('\n')

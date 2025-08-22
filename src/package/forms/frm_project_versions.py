@@ -18,9 +18,8 @@ from pathlib import Path
 import psiutils as ps
 from psiutils.constants import PAD
 from psiutils.buttons import ButtonFrame
-from psiutils.utilities import window_resize, geometry
+from psiutils.utilities import window_resize, geometry, logger
 
-from package.psilogger import logger
 from package.projects import Project
 from package.config import get_config
 from package.compare import compare

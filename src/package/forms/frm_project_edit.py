@@ -7,9 +7,8 @@ from pathlib import Path
 import psiutils as ps
 from psiutils.constants import PAD
 from psiutils.buttons import ButtonFrame, IconButton
-from psiutils.utilities import window_resize, geometry
+from psiutils.utilities import window_resize, geometry, logger
 
-from package.psilogger import logger
 from package.projects import Project
 from package.config import get_config
 import package.text as txt
@@ -56,12 +55,14 @@ class ProjectEditFrame():
         self.project_version = tk.StringVar(value=project.version_text)
         self.version = tk.StringVar(value=project.version_text)
         self.pypi = tk.BooleanVar(value=project.pypi)
+        self.script = tk.StringVar(value=project.script)
 
         # Trace
         self.project_name.trace_add('write', self._check_value_changed)
         self.project_dir.trace_add('write', self._check_value_changed)
         self.version.trace_add('write', self._check_value_changed)
         self.pypi.trace_add('write', self._check_value_changed)
+        self.script.trace_add('write', self._check_value_changed)
 
         self._show()
 
@@ -120,6 +121,17 @@ class ProjectEditFrame():
         button.grid(row=row, column=3)
 
         row += 1
+        label = ttk.Label(frame, text='script')
+        label.grid(row=row, column=0, sticky=tk.E, pady=PAD)
+
+        entry = ttk.Entry(frame, textvariable=self.script)
+        entry.grid(row=row, column=1, columnspan=2, padx=PAD, sticky=tk.EW)
+
+        button = IconButton(
+            frame, txt.OPEN, 'open', self._get_script)
+        button.grid(row=row, column=3, pady=PAD)
+
+        row += 1
         check_button = ttk.Checkbutton(
             frame, text='PyPi project', variable=self.pypi)
         check_button.grid(row=row, column=1, sticky=tk.W)
@@ -147,6 +159,19 @@ class ProjectEditFrame():
                 initialdir=self.project_dir.get(),
                 parent=self.root,):
             self.project_dir.set(directory)
+
+    def _get_script(self, *args) -> None:
+        # pylint: disable=no-member)
+        initialdir = self.config.script_directory
+        if self.script.get():
+            initialdir = Path(self.script.get()).parent
+
+        if directory := filedialog.askopenfilename(
+                initialdir=initialdir,
+                initialfile=self.script.get(),
+                parent=self.root,):
+            self.script.set(directory)
+
     def _check_value_changed(self, *args) -> None:
         enable = self._record_changes()
         self.button_frame.enable(enable)
@@ -163,6 +188,7 @@ class ProjectEditFrame():
             )
         self.project.project_dir = self.project_dir.get()
         self.project.pypi = self.pypi.get()
+        self.project.script = self.script.get()
 
         logger.info(
             "Project changed",
@@ -184,6 +210,8 @@ class ProjectEditFrame():
                  self.project.project_dir, self.project_dir.get())
         if self.project.pypi != self.pypi.get():
             changes['pypi'] = (self.project.pypi, self.pypi.get())
+        if self.project.script != self.script.get():
+            changes['script'] = (self.project.script, self.script.get())
         return changes
 
     def _build_project(self, *args) -> None:

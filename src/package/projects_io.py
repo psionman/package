@@ -1,11 +1,9 @@
 """I/O operations for projects.py."""
-
+from pathlib import Path
 import json
 
 from psiutils.constants import DIALOG_STATUS
-# from psiutils.logger import logger
-
-from psilogger import logger
+from psiutils.utilities import logger
 
 
 def read_text_file(path: str) -> str:
@@ -44,8 +42,8 @@ def update_file(pyproject_path: str, output: str) -> int:
                 pyproject_path, 'w', encoding='utf8') as f_output:
             f_output.write(output)
         return DIALOG_STATUS['ok']
-    except FileNotFoundError:
-        logger.error(f'File not found {pyproject_path}')
+    except NotADirectoryError:
+        logger.warning(f'Cannot find directory: {Path(pyproject_path).parent}')
         return DIALOG_STATUS['error']
 
 
@@ -67,7 +65,7 @@ def read_json_file(path: str) -> dict:
             except json.decoder.JSONDecodeError:
                 return {}
     except FileNotFoundError:
-        print(f'File not found on read: {path}')
+        logger.warning(f'File not found {path}')
         return {}
 
 
@@ -86,5 +84,6 @@ def update_json_file(path: str, output: dict) -> int:
     try:
         with open(path, 'w', encoding='utf8') as f_json:
             return json.dump(output, f_json)
-    except FileNotFoundError:
-        print(f'File not found on write: {path}')
+    except NotADirectoryError:
+        logger.warning(f'Cannot find directory: {Path(path).parent}')
+        return {}

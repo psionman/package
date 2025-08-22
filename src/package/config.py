@@ -6,6 +6,7 @@ from package.constants import CONFIG_PATH, DATA_DIR
 DEFAULT_CONFIG = {
     'data_directory': DATA_DIR,
     'last_project': '',
+    'script_directory': '',
     'project_file': 'projects.json',
     'ignore': [],
     'geometry': {
