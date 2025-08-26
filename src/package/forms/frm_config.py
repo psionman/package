@@ -110,11 +110,8 @@ class ConfigFrame():
         frame.grid(row=0, column=0, sticky=tk.EW)
         return frame
 
-    def _value_changed(self, *args) -> bool:
-        return bool(self._config_changes())
-
     def _check_value_changed(self, *args) -> None:
-        enable = self._value_changed()
+        enable = bool(self._config_changes())
         self.button_frame.enable(enable)
 
     def _set_data_directory(self) -> None:
