@@ -303,7 +303,10 @@ class MainFrame():
                 '', f'Project not updated - code: {code}')
 
     def _open_code(self, *args) -> None:
-        subprocess.call(['codium', '-n', self.project.base_dir])
+        try:
+            subprocess.call(['codium', '-n', self.project.base_dir])
+        except FileNotFoundError:
+            messagebox.showerror('', "codium not found.")
 
     def _konsole(self, *args) -> None:
         return subprocess.Popen(
