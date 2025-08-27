@@ -97,6 +97,8 @@ class Project():
 
     def _get_project_version(self) -> str:
         raw_text = io.read_text_file(Path(self.project_dir, VERSION_FILE))
+        if raw_text == DIALOG_STATUS['error']:
+            return ''
         return self._get_version_text(raw_text)
 
     def _get_version_text(self, raw_text: str) -> str:
