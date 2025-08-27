@@ -81,7 +81,9 @@ def update_json_file(path: str, output: dict) -> int:
         int: The number of characters written to the file,
         or DIALOG_STATUS['error'] if the file is not found.
     """
+
     try:
+        path.parent.mkdir(parents=True, exist_ok=True)
         with open(path, 'w', encoding='utf8') as f_json:
             return json.dump(output, f_json)
     except NotADirectoryError:
