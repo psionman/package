@@ -14,6 +14,7 @@ import psiutils.text as txt
 
 from package.projects import ProjectServer
 from package.config import get_config
+from package.build import UV_PUBLISH_TOKEN
 
 from package.main_menu import MainMenu
 from package.forms.frm_project_edit import ProjectEditFrame
@@ -286,6 +287,10 @@ class MainFrame():
         self._populate_tree()
 
     def _build_project(self, *args) -> None:
+        if not UV_PUBLISH_TOKEN:
+            messagebox.showerror('', 'UV_PUBLISH_TOKEN not set.')
+            return
+
         dlg = BuildFrame(self, self.project)
         self.root.wait_window(dlg.root)
 

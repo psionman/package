@@ -11,9 +11,13 @@ from psiutils.utilities import logger
 
 from package.projects import Project
 
-
-load_dotenv()
-os.environ["UV_PUBLISH_TOKEN"] = os.getenv("UV_PUBLISH_TOKEN")
+try:
+    load_dotenv()
+    os.environ["UV_PUBLISH_TOKEN"] = os.getenv("UV_PUBLISH_TOKEN")
+    UV_PUBLISH_TOKEN = True
+except TypeError:
+    logger.error("No .env file found in root dir, or invalid content.")
+    UV_PUBLISH_TOKEN = False
 
 
 def update_module(context: dict) -> int:

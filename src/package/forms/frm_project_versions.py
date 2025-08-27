@@ -23,6 +23,7 @@ from psiutils.utilities import window_resize, geometry, logger
 from package.projects import Project
 from package.config import get_config
 from package.compare import compare
+from package.build import UV_PUBLISH_TOKEN
 
 from package.forms.frm_compare import CompareFrame
 from package.forms.frm_build import BuildFrame
@@ -331,8 +332,13 @@ class ProjectVersionsFrame():
         return ''
 
     def _build_project(self, *args) -> None:
+        if not UV_PUBLISH_TOKEN:
+            messagebox.showerror('', 'UV_PUBLISH_TOKEN not set.')
+            return
+
         if not self._is_valid():
             return
+
         dlg = BuildFrame(self, self.project)
         self.root.wait_window(dlg.root)
 

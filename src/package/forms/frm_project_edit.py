@@ -13,8 +13,6 @@ from package.projects import Project
 from package.config import get_config
 import package.text as txt
 
-from package.forms.frm_build import BuildFrame
-
 FRAME_TITLE = 'Project compare versions'
 
 DEFAULT_DEV_DIR = str(Path(Path.home(), '.pyenv', 'versions'))
@@ -213,10 +211,6 @@ class ProjectEditFrame():
         if self.project.script != self.script.get():
             changes['script'] = (self.project.script, self.script.get())
         return changes
-
-    def _build_project(self, *args) -> None:
-        dlg = BuildFrame(self, self.project)
-        self.root.wait_window(dlg.root)
 
     def _dismiss(self, *args) -> None:
         self.root.destroy()
