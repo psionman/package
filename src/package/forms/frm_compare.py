@@ -10,7 +10,7 @@ from psiutils.utilities import window_resize, geometry
 from psiutils.buttons import ButtonFrame, IconButton
 
 from package.compare import compare
-from package.config import get_config
+from package.config import read_config
 from package.projects import Project
 from package.env_version import EnvironmentVersion
 
@@ -30,7 +30,7 @@ class CompareFrame():
         self.project = project
         self.env_version = env_version
 
-        self.config = get_config()
+        self.config = read_config()
 
         self.missing_frame = None
         self.button_frame = None

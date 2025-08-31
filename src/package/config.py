@@ -19,7 +19,7 @@ DEFAULT_CONFIG = {
 }
 
 
-def get_config() -> TomlConfig:
+def read_config() -> TomlConfig:
     """Return the config file."""
     return TomlConfig(path=CONFIG_PATH, defaults=DEFAULT_CONFIG)
 
@@ -32,4 +32,4 @@ def save_config(config: TomlConfig) -> TomlConfig | None:
     return config
 
 
-config = get_config()
+config = read_config()

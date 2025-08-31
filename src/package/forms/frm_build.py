@@ -8,7 +8,7 @@ from psiutils.widgets import clickable_widget
 from psiutils.constants import PAD, DIALOG_STATUS
 from psiutils.utilities import window_resize, geometry, logger
 
-from package.config import config, get_config
+from package.config import config, read_config
 
 from package.build import update_module
 import package.text as txt
@@ -20,7 +20,7 @@ class BuildFrame():
     def __init__(self, parent, project):
         self.root = tk.Toplevel(parent.root)
         self.parent = parent
-        self.config = get_config()
+        self.config = read_config()
 
         self.project = project
 

@@ -10,7 +10,7 @@ from psiutils.buttons import ButtonFrame, IconButton
 from psiutils.utilities import window_resize, geometry, logger
 
 from package.projects import Project
-from package.config import get_config
+from package.config import read_config
 import package.text as txt
 
 FRAME_TITLE = 'Project compare versions'
@@ -28,7 +28,7 @@ class ProjectEditFrame():
     def __init__(self, parent, mode: int, project: Project = None) -> None:
         self.root = tk.Toplevel(parent.root)
         self.parent = parent
-        self.config = get_config()
+        self.config = read_config()
         self.mode = mode
         self.project = project
         self.projects = parent.projects
@@ -115,7 +115,7 @@ class ProjectEditFrame():
         entry.grid(row=row, column=1, columnspan=2, padx=PAD, sticky=tk.EW)
 
         button = IconButton(
-            frame, txt.OPEN, 'open', self._get_project_dir)
+            frame, txt.OPEN, 'open', False, self._get_project_dir)
         button.grid(row=row, column=3)
 
         row += 1
@@ -126,7 +126,7 @@ class ProjectEditFrame():
         entry.grid(row=row, column=1, columnspan=2, padx=PAD, sticky=tk.EW)
 
         button = IconButton(
-            frame, txt.OPEN, 'open', self._get_script)
+            frame, txt.OPEN, 'open', False, self._get_script)
         button.grid(row=row, column=3, pady=PAD)
 
         row += 1

@@ -21,7 +21,7 @@ from psiutils.buttons import ButtonFrame
 from psiutils.utilities import window_resize, geometry, logger
 
 from package.projects import Project
-from package.config import get_config
+from package.config import read_config
 from package.compare import compare
 from package.build import UV_PUBLISH_TOKEN
 
@@ -48,7 +48,7 @@ class ProjectVersionsFrame():
     Attributes:
         root (tk.Toplevel): The top-level window for this frame.
         parent: The parent window or frame.
-        config (dict): Configuration values loaded via `get_config`.
+        config (dict): Configuration values loaded via `read_config`.
         mode (int): Determines whether fields are editable (e.g., `ps.EDIT`).
         project (Project): The project currently being displayed
             and manipulated.
@@ -85,7 +85,7 @@ class ProjectVersionsFrame():
             refresh: bool = False) -> None:
         self.root = tk.Toplevel(parent.root)
         self.parent = parent
-        self.config = get_config()
+        self.config = read_config()
         self.mode = mode
         self.project = project
         self.project_server = parent.project_server
@@ -230,6 +230,7 @@ class ProjectVersionsFrame():
                     if item[1]:
                         missing_files.append(item[1])
 
+            print(f'{name=}, {missing=} {mismatches=}')
             if missing or mismatches:
                 style = 'red-fg.TRadiobutton'
                 # style.config('width', 500)

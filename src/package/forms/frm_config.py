@@ -8,7 +8,7 @@ from psiutils.constants import PAD
 from psiutils.utilities import window_resize, geometry, logger
 
 from package.constants import APP_TITLE
-from package.config import config, get_config
+from package.config import config, read_config
 import package.text as txt
 
 LF = '\n'
@@ -18,7 +18,7 @@ class ConfigFrame():
     def __init__(self, parent):
         # pylint: disable=no-member
         self.root = tk.Toplevel(parent.root)
-        self.config = get_config()
+        self.config = read_config()
         self.parent = parent
         self.ignore_text = None
 
@@ -66,8 +66,8 @@ class ConfigFrame():
                               textvariable=self.data_directory)
         directory.grid(row=row, column=1, columnspan=1, sticky=tk.EW,
                        padx=PAD, pady=PAD)
-        select = IconButton(frame, txt.OPEN, icon='open',
-                            command=self._set_data_directory)
+        select = IconButton(
+            frame, txt.OPEN, 'open', False, self._set_data_directory)
         select.grid(row=row, column=2, sticky=tk.W, padx=PAD)
 
         row += 1
@@ -78,8 +78,8 @@ class ConfigFrame():
                               textvariable=self.script_directory)
         directory.grid(row=row, column=1, columnspan=1, sticky=tk.EW,
                        padx=PAD, pady=PAD)
-        select = IconButton(frame, txt.OPEN, icon='open',
-                            command=self._set_script_directory)
+        select = IconButton(frame, txt.OPEN, 'open', False,
+                            self._set_script_directory)
         select.grid(row=row, column=2, sticky=tk.W, padx=PAD, pady=PAD)
 
         row += 1

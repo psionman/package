@@ -13,13 +13,14 @@ from psiutils.utilities import window_resize, geometry
 import psiutils.text as txt
 
 from package.projects import ProjectServer
-from package.config import get_config
+from package.config import read_config
 from package.build import UV_PUBLISH_TOKEN
 
 from package.main_menu import MainMenu
 from package.forms.frm_project_edit import ProjectEditFrame
 from package.forms.frm_project_versions import ProjectVersionsFrame
 from package.forms.frm_build import BuildFrame
+from package.forms.frm_search import SearchFrame
 
 FRAME_TITLE = 'Package update and build'
 
@@ -43,7 +44,7 @@ class MainFrame():
     def __init__(self, parent):
         self.root = parent.root
         self.parent = parent
-        self.config = get_config()
+        self.config = read_config()
 
         self.project_server = ProjectServer()
         self.projects = self.project_server.projects
@@ -186,11 +187,12 @@ class MainFrame():
             'compare', True, self._compare_project)
         self.refresh_button = frame.icon_button(
             'refresh', True, self._refresh_project)
-        konsole_button = IconButton(frame, 'Konsole', 'gear', self._konsole)
+        konsole_button = IconButton(
+            frame, 'Konsole', 'gear', False, self._konsole)
         self.script_button = IconButton(
-            frame, 'Edit script', 'script', self._edit_script)
+            frame, 'Edit script', 'script', False, self._edit_script)
         self.run_script_button = IconButton(
-            frame, 'Run script', 'start', self._run_script)
+            frame, 'Run script', 'start', False, self._run_script)
         frame.buttons = [
             frame.icon_button('new', False, self._new_project),
             frame.icon_button('edit', True, self._edit_project),
@@ -202,6 +204,7 @@ class MainFrame():
             self.run_script_button,
             self.compare_button,
             self.refresh_button,
+            frame.icon_button('search', True, self._search_for_content),
             frame.icon_button('delete', True, self._delete_project),
             frame.icon_button('close', False, self._dismiss),
         ]
@@ -322,6 +325,10 @@ class MainFrame():
         return subprocess.Popen(
                 [self.project.script]
             )
+
+    def _search_for_content(self, * args):
+        dlg = SearchFrame(self)
+        self.root.wait_window(dlg.root)
 
     def _dismiss(self, *args) -> None:
         self.root.destroy()
