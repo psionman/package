@@ -53,6 +53,7 @@ class ProjectEditFrame():
         self.project_version = tk.StringVar(value=project.version_text)
         self.version = tk.StringVar(value=project.version_text)
         self.pypi = tk.BooleanVar(value=project.pypi)
+        self.build_for_windows = tk.BooleanVar(value=project.build_for_windows)
         self.script = tk.StringVar(value=project.script)
 
         # Trace
@@ -60,6 +61,7 @@ class ProjectEditFrame():
         self.project_dir.trace_add('write', self._check_value_changed)
         self.version.trace_add('write', self._check_value_changed)
         self.pypi.trace_add('write', self._check_value_changed)
+        self.build_for_windows.trace_add('write', self._check_value_changed)
         self.script.trace_add('write', self._check_value_changed)
 
         self._show()
@@ -135,6 +137,11 @@ class ProjectEditFrame():
         check_button.grid(row=row, column=1, sticky=tk.W)
 
         row += 1
+        check_button = ttk.Checkbutton(
+            frame, text='Build for windows', variable=self.build_for_windows)
+        check_button.grid(row=row, column=1, sticky=tk.W)
+
+        row += 1
         frame.rowconfigure(row, weight=1)
 
         row += 1
@@ -186,6 +193,7 @@ class ProjectEditFrame():
             )
         self.project.project_dir = self.project_dir.get()
         self.project.pypi = self.pypi.get()
+        self.project.build_for_windows = self.build_for_windows.get()
         self.project.script = self.script.get()
 
         logger.info(
@@ -208,6 +216,9 @@ class ProjectEditFrame():
                  self.project.project_dir, self.project_dir.get())
         if self.project.pypi != self.pypi.get():
             changes['pypi'] = (self.project.pypi, self.pypi.get())
+        if self.project.build_for_windows != self.build_for_windows.get():
+            changes['build_for_windows'] = (
+                self.project.build_for_windows, self.build_for_windows.get())
         if self.project.script != self.script.get():
             changes['script'] = (self.project.script, self.script.get())
         return changes

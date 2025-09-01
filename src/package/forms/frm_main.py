@@ -56,6 +56,7 @@ class MainFrame():
         self.refresh_button = None
         self.script_button = None
         self.run_script_button = None
+        self.windows_build_button = None
 
         self.build_menu_item = None
         self.compare_menu_item = None
@@ -163,6 +164,10 @@ class MainFrame():
         if not self.project.pypi:
             self._disable_non_pypi_buttons()
 
+        self.windows_build_button.disable()
+        if self.project.build_for_windows:
+            self.windows_build_button.enable()
+
         self.config.update('last_project', values[0])
         self.config.save()
 
@@ -193,6 +198,8 @@ class MainFrame():
             frame, 'Edit script', 'script', False, self._edit_script)
         self.run_script_button = IconButton(
             frame, 'Run script', 'start', False, self._run_script)
+        self.windows_build_button = IconButton(
+            frame, 'Build for Windows', 'windows', False, self._run_script)
         frame.buttons = [
             frame.icon_button('new', False, self._new_project),
             frame.icon_button('edit', True, self._edit_project),
@@ -204,12 +211,14 @@ class MainFrame():
             self.run_script_button,
             self.compare_button,
             self.refresh_button,
+            self.windows_build_button,
             frame.icon_button('search', True, self._search_for_content),
             frame.icon_button('delete', True, self._delete_project),
             frame.icon_button('close', False, self._dismiss),
         ]
         self.script_button.disable()
         self.run_script_button.disable()
+        self.windows_build_button.disable()
         frame.enable(False)
         return frame
 

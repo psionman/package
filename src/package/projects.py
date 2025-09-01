@@ -6,8 +6,8 @@ import re
 import subprocess
 
 from psiutils.constants import DIALOG_STATUS
-from psi_toml.parser import TomlParser
 from psiutils.utilities import logger
+from psi_toml.parser import TomlParser
 
 from package.config import config
 
@@ -51,6 +51,7 @@ class Project():
         self._version_text = ''
         self.script: str = ''
         self.pypi = False
+        self.build_for_windows = False
 
     def __repr__(self) -> str:
         """
@@ -80,6 +81,7 @@ class Project():
         return {
             'dir': self.project_dir,
             'pypi': self.pypi,
+            'build_for_windows': self.build_for_windows,
             'cached_envs': {key: item.serialize()
                             for key, item in self.cached_envs.items()},
             'script': self.script,
@@ -411,6 +413,9 @@ class ProjectServer():
 
             project.project_dir = item['dir']
             project.pypi = item['pypi']
+            if 'build_for_windows' not in item:
+                item['build_for_windows'] = False
+            project.build_for_windows = item['build_for_windows']
             project.cached_envs = {key: EnvironmentVersion(data)
                                    for key, data
                                    in item['cached_envs'].items()}
