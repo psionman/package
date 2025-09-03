@@ -1,17 +1,21 @@
 """Tkinter frame for config maintenance."""
 
 import tkinter as tk
-from tkinter import ttk, messagebox, filedialog
+from tkinter import ttk, filedialog
 
 from psiutils.buttons import ButtonFrame, IconButton
 from psiutils.constants import PAD
 from psiutils.utilities import window_resize, geometry, logger
 
-from package.constants import APP_TITLE
 from package.config import config, read_config
 import package.text as txt
 
 LF = '\n'
+
+FIELDS = {
+    'data_directory': tk.StringVar,
+    'script_directory': tk.StringVar,
+}
 
 
 class ConfigFrame():
@@ -22,14 +26,17 @@ class ConfigFrame():
         self.parent = parent
         self.ignore_text = None
 
-        self.data_directory = tk.StringVar(value=config.data_directory)
-        self.script_directory = tk.StringVar(value=config.script_directory)
-
-        self.data_directory.trace_add('write', self._check_value_changed)
-        self.script_directory.trace_add('write', self._check_value_changed)
+        for field, f_type in FIELDS.items():
+            if f_type is tk.StringVar:
+                setattr(self, field, self._stringvar(getattr(config, field)))
 
         self.button_frame = None
         self._show()
+
+    def _stringvar(self, value: str) -> tk.StringVar:
+        stringvar = tk.StringVar(value=value)
+        stringvar.trace_add('write', self._check_value_changed)
+        return stringvar
 
     def _show(self):
         root = self.root
@@ -115,6 +122,7 @@ class ConfigFrame():
         self.button_frame.enable(enable)
 
     def _set_data_directory(self) -> None:
+        # pylint: disable=no-member)
         directory = filedialog.askdirectory(
             initialdir=self.data_directory.get(),
             parent=self.root,
@@ -123,6 +131,7 @@ class ConfigFrame():
             self.data_directory.set(directory)
 
     def _set_script_directory(self) -> None:
+        # pylint: disable=no-member)
         directory = filedialog.askdirectory(
             initialdir=self.script_directory.get(),
             parent=self.root,
@@ -130,45 +139,35 @@ class ConfigFrame():
         if directory:
             self.script_directory.set(directory)
 
-    def _save_config(self, *args) -> None:
-        """Save defaults to config."""
-        result = self.write_config()
-        if result == 0:
-            messagebox.showinfo(title=APP_TITLE,
-                                message=f'{txt.CONFIG} saved',
-                                parent=self.root)
-        else:
-            message = f'Defaults not saved{LF}{result}'
-            messagebox.showerror(title=APP_TITLE, message=message,
-                                 parent=self.root)
-        self._dismiss()
+    def _save_config(self):
+        changes = {field: f'(old value={change[0]}, new_value={change[1]})'
+                   for field, change in self._config_changes().items()}
 
-    def write_config(self):
-        changes = self._config_changes()
-
-        for key, new_value in changes.items():
-            changes[key] = (self.config.config[key], new_value)
-            self.config.update(key, new_value)
+        for field in FIELDS:
+            self.config.config[field] = getattr(self, field).get()
 
         logger.info(
             "Config saved",
             changes=changes
         )
 
+        self._dismiss()
         return self.config.save()
 
     def _config_changes(self) -> dict:
-        changes = {}
-        if self.config.config['data_directory'] != self.data_directory.get():
-            changes['data_directory'] = self.data_directory.get()
-        if self.config.config['script_directory'] != self.script_directory.get():
-            changes['script_directory'] = self.script_directory.get()
+        stored = self.config.config
+        changes = {
+            field: (stored[field], getattr(self, field).get())
+            for field in FIELDS
+            if stored[field] != getattr(self, field).get()
+        }
 
         ignore_text = self.ignore_text.get('0.0', tk.END)
         ignore_text = ignore_text.strip('\n')
         ignore_text = ignore_text.split('\n')
-        if self.config.config['ignore'] != ignore_text:
+        if stored['ignore'] != ignore_text:
             changes['ignore'] = ignore_text
+        print(changes)
         return changes
 
     def _dismiss(self) -> None:
