@@ -7,7 +7,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 from psiutils.constants import DIALOG_STATUS
-from psiutils.utilities import logger
+from package import logger
 
 from package.projects import Project
 

@@ -5,8 +5,9 @@ from tkinter import ttk, filedialog
 
 from psiutils.buttons import ButtonFrame, IconButton
 from psiutils.constants import PAD
-from psiutils.utilities import window_resize, geometry, logger
+from psiutils.utilities import window_resize, geometry
 
+from package import logger
 from package.config import config, read_config
 import package.text as txt
 
@@ -19,6 +20,36 @@ FIELDS = {
 
 
 class ConfigFrame():
+    """
+    Represents a configuration frame for managing and displaying
+    configuration settings.
+
+    Args:
+        parent: The parent window for the configuration frame.
+
+    Attributes:
+        root: The root window of the configuration frame.
+        config: The configuration settings.
+        parent: The parent window.
+        ignore_text: Text field for ignored settings.
+
+    Methods:
+        _stringvar(value: str) -> tk.StringVar: Creates a StringVar with a
+        given value.
+        _show(): Displays the configuration frame.
+        _main_frame(master: tk.Frame) -> tk.Frame: Creates the main frame of
+        the configuration.
+        _button_frame(master: tk.Frame) -> tk.Frame: Creates the button frame
+        for the configuration.
+        _check_value_changed(*args) -> None: Checks if values have changed.
+        _set_data_directory() -> None: Sets the data directory.
+        _set_script_directory() -> None: Sets the script directory.
+        _save_config(): Saves the configuration changes.
+        _config_changes() -> dict: Determines the changes in
+        configuration settings.
+        _set_config(*args) -> None: Sets the configuration settings.
+        _dismiss() -> None: Dismisses the configuration frame.
+    """
     def __init__(self, parent):
         # pylint: disable=no-member
         self.root = tk.Toplevel(parent.root)
@@ -47,6 +78,7 @@ class ConfigFrame():
         root.bind('<Control-s>', self._save_config)
         root.bind('<Configure>',
                   lambda event, arg=None: window_resize(self, __file__))
+        root.bind("<FocusIn>", self._set_config)
 
         root.wait_visibility()
 
@@ -146,10 +178,7 @@ class ConfigFrame():
         for field in FIELDS:
             self.config.config[field] = getattr(self, field).get()
 
-        logger.info(
-            "Config saved",
-            changes=changes
-        )
+        logger.info("Config saved", changes=changes)
 
         self._dismiss()
         return self.config.save()
@@ -167,8 +196,12 @@ class ConfigFrame():
         ignore_text = ignore_text.split('\n')
         if stored['ignore'] != ignore_text:
             changes['ignore'] = ignore_text
-        print(changes)
         return changes
+
+    def _set_config(self, *args) -> None:
+        self.config = read_config()
+        for field in FIELDS:
+            getattr(self, field).set(self.config.config[field])
 
     def _dismiss(self) -> None:
         self.root.destroy()

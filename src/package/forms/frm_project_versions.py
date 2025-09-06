@@ -18,12 +18,13 @@ from pathlib import Path
 import psiutils as ps
 from psiutils.constants import PAD
 from psiutils.buttons import ButtonFrame
-from psiutils.utilities import window_resize, geometry, logger
+from psiutils.utilities import window_resize, geometry
 
 from package.projects import Project
 from package.config import read_config
 from package.compare import compare
 from package.build import UV_PUBLISH_TOKEN
+from package import logger
 
 from package.forms.frm_compare import CompareFrame
 from package.forms.frm_build import BuildFrame

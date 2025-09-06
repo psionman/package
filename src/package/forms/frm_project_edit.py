@@ -7,11 +7,12 @@ from pathlib import Path
 import psiutils as ps
 from psiutils.constants import PAD
 from psiutils.buttons import ButtonFrame, IconButton
-from psiutils.utilities import window_resize, geometry, logger
+from psiutils.utilities import window_resize, geometry
 
 from package.projects import Project
 from package.config import read_config
 import package.text as txt
+from package import logger
 
 FRAME_TITLE = 'Project compare versions'
 

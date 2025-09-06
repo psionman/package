@@ -6,7 +6,7 @@ import re
 import subprocess
 
 from psiutils.constants import DIALOG_STATUS
-from psiutils.utilities import logger
+from package import logger
 from psi_toml.parser import TomlParser
 
 from package.config import config
