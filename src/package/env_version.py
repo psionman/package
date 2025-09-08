@@ -105,7 +105,6 @@ class EnvironmentVersion():
         self.python_version = environ.python_version
         self.version = self._get_version()
         self.venv_python = self._get_venv_python()
-
     def _get_version(self):
         version_re = r'[0-9]{1,}.[0-9]{1,}.[0-9]{1,}'
         path = Path(self.dir, '_version.py')

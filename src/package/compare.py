@@ -1,7 +1,7 @@
 """Compare the files in two directories."""
 from pathlib import Path
 
-from config import config
+from package.config import config
 
 
 def compare(project_dir: str, env_dir: str) -> list[str]:
@@ -49,9 +49,24 @@ def _file_contents(path: str) -> str:
 
 def _build_comparison(
         comparison: dict, search_path: str, location: str) -> dict:
+    # pylint: disable=no-member)
     search_dir = Path(search_path)
-    file_list = [name for name in search_dir.iterdir()
-                 if name.is_file() or name.is_dir()]
+    file_list = []
+    try:
+        file_list.extend(
+            name
+            for name in search_dir.iterdir()
+            if name.is_file() or name.is_dir()
+        )
+    except FileNotFoundError:
+        return {str(search_dir): 'xxx'}
+
+    # try:
+    #     file_list = [name for name in search_dir.iterdir()
+    #                  if name.is_file() or name.is_dir()]
+    # except FileNotFoundError:
+    #     return {}
+
     for path in file_list:
         file_name = path.name
         if file_name in config.ignore:

@@ -257,13 +257,11 @@ class MainFrame():
 
     def _edit_project(self, *args) -> None:
         dlg = ProjectEditFrame(self, ps.EDIT, self.project)
-        # self._populate_tree()
         self.root.wait_window(dlg.root)
         self._update_projects(dlg)
 
     def _compare_project(self, refresh: bool = False) -> None:
         dlg = ProjectVersionsFrame(self, ps.EDIT, self.project, refresh)
-        # self._populate_tree()
         self.root.wait_window(dlg.root)
         self._update_projects(dlg)
 

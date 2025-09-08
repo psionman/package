@@ -102,6 +102,7 @@ dependencies = [
     { name = "icecream" },
     { name = "markdown" },
     { name = "psiutils" },
+    { name = "pygobject" },
     { name = "python-dateutil" },
     { name = "structlog" },
     { name = "tkinterweb" },
@@ -119,7 +120,8 @@ requires-dist = [
     { name = "dotenv", specifier = ">=0.9.9" },
     { name = "icecream", specifier = ">=2.1.4" },
     { name = "markdown", specifier = ">=3.8" },
-    { name = "psiutils", specifier = ">=0.2.2" },
+    { name = "psiutils", specifier = ">=0.2.5" },
+    { name = "pygobject", specifier = ">=3.54.0" },
     { name = "python-dateutil", specifier = ">=2.9.0.post0" },
     { name = "structlog", specifier = ">=25.4.0" },
     { name = "tkinterweb", specifier = ">=4.3.1" },
@@ -230,7 +232,7 @@ wheels = [
 
 [[package]]
 name = "psiutils"
-version = "0.2.2"
+version = "0.2.5"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "iniconfig" },
@@ -246,9 +248,22 @@ dependencies = [
     { name = "tomli" },
     { name = "tomli-w" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/e7/ce/3da755f5a9843b9f6292509439e0cf23539ff2b087efca21d089469a488f/psiutils-0.2.2.tar.gz", hash = "sha256:2056717d8b5b86be90bb6e41a107c0b3c3c91b865b69a9a65e22fb5504278028", size = 61991, upload-time = "2025-08-29T07:02:22.699Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/eb/b9/503de209a4d53d0d0503a7a0896f1382b9ef32e0783a0301b9fd6b20e7d5/psiutils-0.2.5.tar.gz", hash = "sha256:4667ce40de2bd3f27efcdd3f3f9ef54b8aa136fa1a91df3de9557ebc909b098b", size = 63827, upload-time = "2025-09-08T11:15:45.414Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/b2/3b/0cabcd00b82385d55510ccd1feaa6431a14aa9e14bde702c8c20ef3c55ae/psiutils-0.2.2-py3-none-any.whl", hash = "sha256:b518822bba803d7ce8424b42652634b203f99e837c3dd7df2193ce96e1a14bd1", size = 73661, upload-time = "2025-08-29T07:02:21.199Z" },
+    { url = "https://files.pythonhosted.org/packages/fd/e2/77f77ef8568724dcd8a263b5d54ae1483bf7ec26f201205a9d40c2fdc253/psiutils-0.2.5-py3-none-any.whl", hash = "sha256:fa9ce5f5201414a670e5f4f1b5b7548d5bcd3b41fee1cbb82b5bd7c205bbf247", size = 76040, upload-time = "2025-09-08T11:15:43.7Z" },
+]
+
+[[package]]
+name = "pycairo"
+version = "1.28.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/40/d9/412da520de9052b7e80bfc810ec10f5cb3dbfa4aa3e23c2820dc61cdb3d0/pycairo-1.28.0.tar.gz", hash = "sha256:26ec5c6126781eb167089a123919f87baa2740da2cca9098be8b3a6b91cc5fbc", size = 662477, upload-time = "2025-04-14T20:11:08.218Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/59/a7/c3e5ed55781dfe1b31eb4a2482aeae707671f3d36b0ea53a1722f4a3dfe9/pycairo-1.28.0-cp313-cp313-win32.whl", hash = "sha256:d13352429d8a08a1cb3607767d23d2fb32e4c4f9faa642155383980ec1478c24", size = 750594, upload-time = "2025-04-14T20:10:59.284Z" },
+    { url = "https://files.pythonhosted.org/packages/8b/1c/ebadd290748aff3b6bc35431114d41e7a42f40a4b988c2aaf2dfed5d8156/pycairo-1.28.0-cp313-cp313-win_amd64.whl", hash = "sha256:082aef6b3a9dcc328fa648d38ed6b0a31c863e903ead57dd184b2e5f86790140", size = 841774, upload-time = "2025-04-14T20:11:01.79Z" },
+    { url = "https://files.pythonhosted.org/packages/3e/ce/a3f5f1946613cd8a4654322b878c59f273c6e9b01dfadadd3f609070e0b9/pycairo-1.28.0-cp313-cp313-win_arm64.whl", hash = "sha256:026afd53b75291917a7412d9fe46dcfbaa0c028febd46ff1132d44a53ac2c8b6", size = 691675, upload-time = "2025-04-16T19:30:26.565Z" },
+    { url = "https://files.pythonhosted.org/packages/96/1b/1f5da2b2e44b33a5b269ff28af710b0a7903001d9cf8a40d00fc944a5092/pycairo-1.28.0-cp314-cp314-win32.whl", hash = "sha256:d0ab30585f536101ad6f09052fc3895e2a437ba57531ea07223d0e076248025d", size = 766699, upload-time = "2025-07-24T06:36:07.267Z" },
+    { url = "https://files.pythonhosted.org/packages/c9/91/1d5f18bd3ed469b1de8f83bfbf8bd67d23439f075151b66740fd35356190/pycairo-1.28.0-cp314-cp314-win_amd64.whl", hash = "sha256:94f2ed204999ab95a0671a0fa948ffbb9f3d6fb8731fe787917f6d022d9c1c0f", size = 868725, upload-time = "2025-07-24T06:36:09.597Z" },
 ]
 
 [[package]]
@@ -259,6 +274,15 @@ sdist = { url = "https://files.pythonhosted.org/packages/b0/77/a5b8c569bf593b014
 wheels = [
     { url = "https://files.pythonhosted.org/packages/c7/21/705964c7812476f378728bdf590ca4b771ec72385c533964653c68e86bdc/pygments-2.19.2-py3-none-any.whl", hash = "sha256:86540386c03d588bb81d44bc3928634ff26449851e99741617ecb9037ee5ec0b", size = 1225217, upload-time = "2025-06-21T13:39:07.939Z" },
 ]
+
+[[package]]
+name = "pygobject"
+version = "3.54.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pycairo" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/14/4a/69211cbd13b48f00f2e4bdeb6f2c3867854987e2727b1853b7d1b624d6e0/pygobject-3.54.0.tar.gz", hash = "sha256:4652a7cc7ff950a5099d56ac61a78c144629c20f8855a1306933b46b10f3b417", size = 1271756, upload-time = "2025-09-06T13:24:24.524Z" }
 
 [[package]]
 name = "pyperclip"

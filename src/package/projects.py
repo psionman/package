@@ -92,8 +92,6 @@ class Project():
         return long_dir.replace(str(Path.home()), '~')
 
     def _get_env_version(self) -> str:
-        print(f'{self.env_dir=}')
-        print(f'{self.name=}')
         raw_text = io.read_text_file(Path(self.env_dir, VERSION_FILE))
         return self._get_version_text(raw_text)
 

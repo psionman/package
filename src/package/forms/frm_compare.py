@@ -6,7 +6,7 @@ from tkinter import ttk, messagebox
 import shutil
 
 from psiutils.constants import PAD, PADB
-from psiutils.utilities import window_resize, geometry
+from psiutils.utilities import window_resize, geometry, notify
 from psiutils.buttons import ButtonFrame, IconButton
 
 from package.compare import compare
@@ -90,33 +90,36 @@ class CompareFrame():
         frame = ttk.Frame(container)
         frame.columnconfigure(2, weight=1)
 
+        row = 0
         label = ttk.Label(frame, text='Project')
-        label.grid(row=0, column=0, sticky=tk.E)
+        label.grid(row=row, column=0, sticky=tk.E)
 
         entry = ttk.Entry(frame, textvariable=self.project_name,
                           state='readonly')
-        entry.grid(row=0, column=1, sticky=tk.EW, padx=PAD)
+        entry.grid(row=row, column=1, sticky=tk.EW, padx=PAD)
 
-        label = ttk.Label(frame, text='Dev version')
-        label.grid(row=1, column=0, sticky=tk.E)
-
-        entry = ttk.Entry(frame, textvariable=self.env_version_version,
-                          state='readonly')
-        entry.grid(row=1, column=1, sticky=tk.EW, padx=PAD)
-
-        entry = ttk.Entry(frame, textvariable=self.env_dir, state='readonly')
-        entry.grid(row=1, column=2, sticky=tk.EW, padx=PAD)
-
+        row += 1
         label = ttk.Label(frame, text='Project version')
-        label.grid(row=2, column=0, sticky=tk.E)
+        label.grid(row=row, column=0, sticky=tk.E)
 
         entry = ttk.Entry(frame, textvariable=self.project_version,
                           state='readonly')
-        entry.grid(row=2, column=1, sticky=tk.EW, padx=PAD)
+        entry.grid(row=row, column=1, sticky=tk.EW, padx=PAD)
 
         entry = ttk.Entry(frame, textvariable=self.project_dir,
                           state='readonly')
-        entry.grid(row=2, column=2, sticky=tk.EW, padx=PAD)
+        entry.grid(row=row, column=2, sticky=tk.EW, padx=PAD)
+
+        row += 1
+        label = ttk.Label(frame, text='Env version')
+        label.grid(row=row, column=0, sticky=tk.E)
+
+        entry = ttk.Entry(frame, textvariable=self.env_version_version,
+                          state='readonly')
+        entry.grid(row=row, column=1, sticky=tk.EW, padx=PAD)
+
+        entry = ttk.Entry(frame, textvariable=self.env_dir, state='readonly')
+        entry.grid(row=row, column=2, sticky=tk.EW, padx=PAD)
 
         return frame
 
@@ -155,25 +158,28 @@ class CompareFrame():
         frame.grid(row=9, column=0, padx=PAD)
         self.destroy_widgets.append(frame)
 
+        row = 0
         label = ttk.Label(
             frame, text=' Missing files and dirs', style='blue-fg.TLabel')
-        label.grid(row=0, column=0, sticky=tk.W)
+        label.grid(row=row, column=0, sticky=tk.W)
         self.destroy_widgets.append(label)
 
+        row += 1
         if not missing:
             label = ttk.Label(frame, text='None')
-            label.grid(row=1, column=0)
+            label.grid(row=row, column=0)
             self.destroy_widgets.append(label)
             return frame
 
         label = ttk.Label(frame, text='Env dir')
-        label.grid(row=1, column=0, sticky=tk.W)
+        label.grid(row=row, column=0, sticky=tk.W)
         self.destroy_widgets.append(label)
 
         label = ttk.Label(frame, text='Project dir')
-        label.grid(row=1, column=1, sticky=tk.W)
+        label.grid(row=row, column=1, sticky=tk.W)
         self.destroy_widgets.append(label)
 
+        missing_files = None
         for row, missing_files in enumerate(missing):
             label = self._missing_file_label(frame, missing_files[0])
             label.grid(row=row+2, column=0, padx=PAD, sticky=tk.W)
@@ -182,9 +188,8 @@ class CompareFrame():
             label.grid(row=row, column=1, sticky=tk.W)
 
             if missing_files[0]:
-                # button = ttk.Button(frame, text=txt.COPY)
                 button = IconButton(frame, txt.COPY, 'copy_docs')
-                button.grid(row=row, column=2, padx=PAD, pady=PADB)
+                button.grid(row=row+2, column=2, padx=PAD, pady=PADB)
                 button.widget.bind(
                     '<Button-1>', lambda event, arg=None:
                     self._copy_file(missing_files[0]))
@@ -247,13 +252,13 @@ class CompareFrame():
             self.compare_project()
 
     def _copy_file(self, file_name: str) -> None:
-        source = Path(self.project.env_dir, file_name)
-
+        source = Path(self.env_version.dir, file_name)
+        print(f'{source=}')
         item = 'file'
         if source.is_dir():
             item = 'directory'
         dlg = messagebox.askokcancel(
-            '', f'Copy this {item}?', parent=self.root)
+            '', f'Copy this {item}? ({file_name})', parent=self.root)
         if not dlg:
             return
 
@@ -262,7 +267,10 @@ class CompareFrame():
         if source.is_dir():
             shutil.copytree(source, destination, dirs_exist_ok=True)
         else:
+            print(f'{source=}')
+            print(f'{destination=}')
             shutil.copyfile(source, destination)
+        notify(FRAME_TITLE, f'Item {file_name} copied')
 
         for widget in self.missing_file_frame.winfo_children():
             widget.destroy()
