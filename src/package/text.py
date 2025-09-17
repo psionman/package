@@ -1,3 +1,15 @@
+"""
+Text module that merges psiutils.text.strings with project-level strings.
+
+Usage:
+    from text_module import Text
+
+    txt = Text()
+    print(txt.SELECT)   # Access as attribute
+    print(txt.DELETE_PROMPT)
+"""
+
+from dataclasses import dataclass, field
 from psiutils.text import strings as psi_strings
 
 strings = {
@@ -11,30 +23,33 @@ strings = {
 }
 
 
-class Text():
-    """Combines package level and psiutils strings."""
-    def __init__(self, display_duplicates: bool = False) -> None:
-        """
-        Initialize the object with attributes based on the key-value pairs
-        in the `strings` dictionary.
+@dataclass
+class Text:
+    """Combines package-level (psiutils) and project-level strings.
 
-        Args:
-            self: The instance of the class.
+    Attributes from `psiutils.text.strings` are loaded first, then overridden
+    or extended by the local `strings` dictionary.
+    """
 
-        Returns:
-            None
-        """
+    display: bool = field(default=False, repr=False)
 
+    def __post_init__(self) -> None:
+        """Populate the dataclass instance with string attributes."""
+        # Load psiutils strings
         for key, string in psi_strings.items():
             setattr(self, key, string)
 
+        # Override or add project-level strings
         for key, string in strings.items():
             setattr(self, key, string)
 
-        if display_duplicates:
-            for item in sorted(list(strings)):
-                if item in psi_strings:
-                    output = f'{item}, {psi_strings[item]}, {strings[item]}'
+        # Optionally display contents of `text`
+        if self.display:
+            for item in sorted(list(psi_strings)):
+                output = f'{item}, {psi_strings[item]}'
+                if item in strings:
                     if psi_strings[item] != strings[item]:
-                        output += ' ***'
-                    print(output)
+                        output = f'{output}, {strings[item]} ***'
+                    else:
+                        output = f'{output} <{"="*10} //duplicate//'
+                print(output)

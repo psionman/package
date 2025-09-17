@@ -22,7 +22,7 @@ from package.forms.frm_project_versions import ProjectVersionsFrame
 from package.forms.frm_build import BuildFrame
 from package.forms.frm_search import SearchFrame
 
-txt = Text(True)
+txt = Text()
 
 FRAME_TITLE = 'Package update and build'
 
