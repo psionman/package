@@ -10,16 +10,18 @@ Usage:
 """
 
 from dataclasses import dataclass, field
-from psiutils.text import strings as psi_strings
+from psiutils.text import Text as PsiText
 
 strings = {
-    'SELECT': 'Select',
     'ACCEPT': 'Accept',
-    'DELETE_PROMPT': 'Are you sure you wish to delete this record?',
+    'BUILD_FOR_WINDOWS': 'Build for Windows',
     'CONFIG': 'Preferences',
-    'NOT_IN_PROJECT_DIR': 'Not working in project\'s directory',
+    'DELETE_PROMPT': 'Are you sure you wish to delete this record?',
     'EDIT_SCRIPT': 'Edit script',
+    'KONSOLE': 'Konsole',
+    'NOT_IN_PROJECT_DIR': 'Not working in project\'s directory',
     'RUN_SCRIPT': 'Run script',
+    'SELECT': 'Select',
 }
 
 
@@ -36,6 +38,8 @@ class Text:
     def __post_init__(self) -> None:
         """Populate the dataclass instance with string attributes."""
         # Load psiutils strings
+        psi_text = PsiText()
+        psi_strings = psi_text.strings
         for key, string in psi_strings.items():
             setattr(self, key, string)
 
@@ -45,11 +49,4 @@ class Text:
 
         # Optionally display contents of `text`
         if self.display:
-            for item in sorted(list(psi_strings)):
-                output = f'{item}, {psi_strings[item]}'
-                if item in strings:
-                    if psi_strings[item] != strings[item]:
-                        output = f'{output}, {strings[item]} ***'
-                    else:
-                        output = f'{output} <{"="*10} //duplicate//'
-                print(output)
+            psi_text.display(strings)

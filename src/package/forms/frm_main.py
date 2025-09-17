@@ -168,8 +168,10 @@ class MainFrame():
             self._disable_non_pypi_buttons()
 
         self.windows_build_button.disable()
+        self.windows_build_menu_item.disable()
         if self.project.build_for_windows:
             self.windows_build_button.enable()
+            self.windows_build_menu_item.enable()
 
         self.config.update('last_project', values[0])
         self.config.save()
@@ -188,6 +190,7 @@ class MainFrame():
         self.tree.selection_set(selected_item)
 
     def _button_frame(self, master: tk.Frame) -> tk.Frame:
+        # pylint: disable=no-member)
         frame = ButtonFrame(master, tk.VERTICAL)
         self.build_button = frame.icon_button(
             'build', True, self._build_project)
@@ -196,13 +199,14 @@ class MainFrame():
         self.refresh_button = frame.icon_button(
             'refresh', True, self._refresh_project)
         konsole_button = IconButton(
-            frame, 'Konsole', 'gear', False, self._konsole)
+            frame, txt.KONSOLE, 'gear', False, self._konsole)
         self.script_button = IconButton(
             frame, txt.EDIT_SCRIPT, 'script', False, self._edit_script)
         self.run_script_button = IconButton(
             frame, txt.RUN_SCRIPT, 'start', False, self._run_script)
         self.windows_build_button = IconButton(
-            frame, 'Build for Windows', 'windows', False, self._run_script)
+            frame, txt.BUILD_FOR_WINDOWS, 'windows', False,
+            self._build_for_windows)
         frame.buttons = [
             frame.icon_button('new', False, self._new_project),
             frame.icon_button('edit', True, self._edit_project),
@@ -226,6 +230,7 @@ class MainFrame():
         return frame
 
     def _context_menu(self) -> tk.Menu:
+        # pylint: disable=no-member)
         self.build_menu_item = MenuItem(
             txt.BUILD, self._build_project, dimmable=True)
         self.compare_menu_item = MenuItem(
@@ -237,14 +242,14 @@ class MainFrame():
         self.run_script_menu_item = MenuItem(
             txt.RUN_SCRIPT, self._run_script, dimmable=True)
         self.windows_build_menu_item = MenuItem(
-            'Build for Windows', self._run_script, dimmable=True)
+            txt.BUILD_FOR_WINDOWS, self._build_for_windows, dimmable=True)
         menu_items = [
             MenuItem(txt.NEW, self._new_project, dimmable=False),
             MenuItem(txt.EDIT, self._edit_project, dimmable=True),
             self.build_menu_item,
             MenuItem(txt.UPDATE, self._update_pyproject, dimmable=True),
             MenuItem(txt.CODE, self._open_code, dimmable=True),
-            MenuItem('Konsole', self._konsole, dimmable=True),
+            MenuItem(txt.KONSOLE, self._konsole, dimmable=True),
             self.edit_script_menu_item,
             self.run_script_menu_item,
             self.compare_menu_item,
@@ -337,6 +342,11 @@ class MainFrame():
     def _run_script(self, *args) -> None:
         return subprocess.Popen(
                 [self.project.script]
+            )
+
+    def _build_for_windows(self, *args) -> None:
+        return subprocess.Popen(
+                ['windows-converter', 'project', self.project.name]
             )
 
     def _search_for_content(self, * args):
