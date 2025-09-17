@@ -10,17 +10,19 @@ from psiutils.buttons import ButtonFrame, IconButton
 from psiutils.treeview import sort_treeview
 from psiutils.menus import Menu, MenuItem
 from psiutils.utilities import window_resize, geometry
-import psiutils.text as txt
 
 from package.projects import ProjectServer
 from package.config import read_config
 from package.build import UV_PUBLISH_TOKEN
+from package.text import Text
 
 from package.main_menu import MainMenu
 from package.forms.frm_project_edit import ProjectEditFrame
 from package.forms.frm_project_versions import ProjectVersionsFrame
 from package.forms.frm_build import BuildFrame
 from package.forms.frm_search import SearchFrame
+
+txt = Text(True)
 
 FRAME_TITLE = 'Package update and build'
 
@@ -61,8 +63,9 @@ class MainFrame():
         self.build_menu_item = None
         self.compare_menu_item = None
         self.refresh_menu_item = None
-        self.script_menu_item = None
+        self.edit_script_menu_item = None
         self.run_script_menu_item = None
+        self.windows_build_menu_item = None
 
         self._show()
 
@@ -153,12 +156,12 @@ class MainFrame():
 
         self.script_button.disable()
         self.run_script_button.disable()
-        self.script_menu_item.disable()
+        self.edit_script_menu_item.disable()
         self.run_script_menu_item.disable()
         if self.project.script:
             self.script_button.enable()
             self.run_script_button.enable()
-            self.script_menu_item.enable()
+            self.edit_script_menu_item.enable()
             self.run_script_menu_item.enable()
 
         if not self.project.pypi:
@@ -195,9 +198,9 @@ class MainFrame():
         konsole_button = IconButton(
             frame, 'Konsole', 'gear', False, self._konsole)
         self.script_button = IconButton(
-            frame, 'Edit script', 'script', False, self._edit_script)
+            frame, txt.EDIT_SCRIPT, 'script', False, self._edit_script)
         self.run_script_button = IconButton(
-            frame, 'Run script', 'start', False, self._run_script)
+            frame, txt.RUN_SCRIPT, 'start', False, self._run_script)
         self.windows_build_button = IconButton(
             frame, 'Build for Windows', 'windows', False, self._run_script)
         frame.buttons = [
@@ -229,10 +232,12 @@ class MainFrame():
             txt.COMPARE, self._compare_project, dimmable=True)
         self.refresh_menu_item = MenuItem(
             txt.REFRESH, self._refresh_project, dimmable=True)
-        self.script_menu_item = MenuItem(
-            'Edit script', self._edit_script, dimmable=True)
+        self.edit_script_menu_item = MenuItem(
+            txt.EDIT_SCRIPT, self._edit_script, dimmable=True)
         self.run_script_menu_item = MenuItem(
-            'Run script', self._run_script, dimmable=True)
+            txt.RUN_SCRIPT, self._run_script, dimmable=True)
+        self.windows_build_menu_item = MenuItem(
+            'Build for Windows', self._run_script, dimmable=True)
         menu_items = [
             MenuItem(txt.NEW, self._new_project, dimmable=False),
             MenuItem(txt.EDIT, self._edit_project, dimmable=True),
@@ -240,10 +245,11 @@ class MainFrame():
             MenuItem(txt.UPDATE, self._update_pyproject, dimmable=True),
             MenuItem(txt.CODE, self._open_code, dimmable=True),
             MenuItem('Konsole', self._konsole, dimmable=True),
-            self.script_menu_item,
+            self.edit_script_menu_item,
             self.run_script_menu_item,
             self.compare_menu_item,
             self.refresh_menu_item,
+            self.windows_build_menu_item,
             MenuItem(txt.DELETE, self._delete_project, dimmable=True),
         ]
         context_menu = Menu(self.root, menu_items)

@@ -12,7 +12,9 @@ from package.config import config, read_config
 from package import logger
 
 from package.build import update_module
-import package.text as txt
+from package.text import Text
+
+txt = Text()
 
 FRAME_TITLE = 'Build package'
 

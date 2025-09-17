@@ -9,7 +9,9 @@ from psiutils.utilities import window_resize, geometry
 
 from package import logger
 from package.config import config, read_config
-import package.text as txt
+from package.text import Text
+
+txt = Text()
 
 LF = '\n'
 

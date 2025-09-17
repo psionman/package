@@ -13,9 +13,9 @@ from package.compare import compare
 from package.config import read_config
 from package.projects import Project
 from package.env_version import EnvironmentVersion
+from package.text import Text
 
-import package.text as txt
-
+txt = Text()
 FRAME_TITLE = 'Compare files across directories'
 
 

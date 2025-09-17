@@ -2,12 +2,14 @@ import tkinter as tk
 from tkinter import messagebox
 
 from psiutils.menus import Menu, MenuItem
-from forms.frm_config import ConfigFrame
+from package.constants import AUTHOR, APP_TITLE
+from package._version import __version__
 
-from constants import AUTHOR, APP_TITLE
-from _version import __version__
+from package.text import Text
 
-import text as txt
+from package.forms.frm_config import ConfigFrame
+
+txt = Text()
 SPACES = ' '*20
 
 

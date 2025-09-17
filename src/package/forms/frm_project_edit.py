@@ -11,9 +11,10 @@ from psiutils.utilities import window_resize, geometry
 
 from package.projects import Project
 from package.config import read_config
-import package.text as txt
+from package.text import Text
 from package import logger
 
+txt = Text()
 FRAME_TITLE = 'Project compare versions'
 
 DEFAULT_DEV_DIR = str(Path(Path.home(), '.pyenv', 'versions'))

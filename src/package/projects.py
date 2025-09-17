@@ -294,7 +294,7 @@ class Project():
         """Create a requirements.txt and update pyproject.tom accordingly."""
 
         logger.info(
-            "Starting update process",
+            "Starting pyproject.toml update process",
             project=self.name,
         )
         self._install_pip()
