@@ -224,11 +224,11 @@ class ProjectVersionsFrame():
     def _button_frame(self, master: tk.Frame) -> tk.Frame:
         frame = ButtonFrame(master, tk.VERTICAL)
         frame.buttons = [
-            frame.icon_button('build', False, self._build_project),
-            frame.icon_button('compare', True, self._compare_project),
-            frame.icon_button('update', True, self._update_project),
-            frame.icon_button('code', True, self._open_code),
-            frame.icon_button('exit', False, self._dismiss),
+            frame.icon_button('build', self._build_project),
+            frame.icon_button('compare', self._compare_project, True),
+            frame.icon_button('update', self._update_project, True),
+            frame.icon_button('code', self._open_code, True),
+            frame.icon_button('exit', self._dismiss),
         ]
         frame.enable(False)
         return frame

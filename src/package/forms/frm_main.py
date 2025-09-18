@@ -193,35 +193,34 @@ class MainFrame():
         # pylint: disable=no-member)
         frame = ButtonFrame(master, tk.VERTICAL)
         self.build_button = frame.icon_button(
-            'build', True, self._build_project)
+            'build', self._build_project, True)
         self.compare_button = frame.icon_button(
-            'compare', True, self._compare_project)
+            'compare', self._compare_project, True)
         self.refresh_button = frame.icon_button(
-            'refresh', True, self._refresh_project)
+            'refresh', self._refresh_project, True)
         konsole_button = IconButton(
-            frame, txt.KONSOLE, 'gear', False, self._konsole)
+            frame, txt.KONSOLE, 'gear', self._konsole)
         self.script_button = IconButton(
-            frame, txt.EDIT_SCRIPT, 'script', False, self._edit_script)
+            frame, txt.EDIT_SCRIPT, 'script', self._edit_script)
         self.run_script_button = IconButton(
-            frame, txt.RUN_SCRIPT, 'start', False, self._run_script)
+            frame, txt.RUN_SCRIPT, 'start', self._run_script)
         self.windows_build_button = IconButton(
-            frame, txt.BUILD_FOR_WINDOWS, 'windows', False,
-            self._build_for_windows)
+            frame, txt.BUILD_FOR_WINDOWS, 'windows', self._build_for_windows)
         frame.buttons = [
-            frame.icon_button('new', False, self._new_project),
-            frame.icon_button('edit', True, self._edit_project),
+            frame.icon_button('new', self._new_project),
+            frame.icon_button('edit', self._edit_project, True),
             self.build_button,
-            frame.icon_button('update', False, self._update_pyproject),
-            frame.icon_button('code', True, self._open_code),
+            frame.icon_button('update', self._update_pyproject),
+            frame.icon_button('code', self._open_code, True),
             konsole_button,
             self.script_button,
             self.run_script_button,
             self.compare_button,
             self.refresh_button,
             self.windows_build_button,
-            frame.icon_button('search', True, self._search_for_content),
-            frame.icon_button('delete', True, self._delete_project),
-            frame.icon_button('close', False, self._dismiss),
+            frame.icon_button('search', self._search_for_content, True),
+            frame.icon_button('delete', self._delete_project, True),
+            frame.icon_button('close', self._dismiss),
         ]
         self.script_button.disable()
         self.run_script_button.disable()

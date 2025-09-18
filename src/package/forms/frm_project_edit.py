@@ -87,6 +87,7 @@ class ProjectEditFrame():
         sizegrip.grid(sticky=tk.SE)
 
     def _main_frame(self, master: tk.Frame) -> ttk.Frame:
+        # pylint: disable=no-member)
         frame = ttk.Frame(master)
         frame.columnconfigure(2, weight=1)
 
@@ -119,7 +120,7 @@ class ProjectEditFrame():
         entry.grid(row=row, column=1, columnspan=2, padx=PAD, sticky=tk.EW)
 
         button = IconButton(
-            frame, txt.OPEN, 'open', False, self._get_project_dir)
+            frame, txt.OPEN, 'open', self._get_project_dir)
         button.grid(row=row, column=3)
 
         row += 1
@@ -130,7 +131,7 @@ class ProjectEditFrame():
         entry.grid(row=row, column=1, columnspan=2, padx=PAD, sticky=tk.EW)
 
         button = IconButton(
-            frame, txt.OPEN, 'open', False, self._get_script)
+            frame, txt.OPEN, 'open', self._get_script)
         button.grid(row=row, column=3, pady=PAD)
 
         row += 1
@@ -155,8 +156,8 @@ class ProjectEditFrame():
     def _button_frame(self, master: tk.Frame) -> tk.Frame:
         frame = ButtonFrame(master, tk.HORIZONTAL)
         frame.buttons = [
-            frame.icon_button('save', True, self._save),
-            frame.icon_button('exit', False, self._dismiss),
+            frame.icon_button('save', self._save, True),
+            frame.icon_button('exit', self._dismiss),
         ]
         frame.enable(False)
         return frame

@@ -340,7 +340,6 @@ class Project():
             )
         return code
 
-
     def _build_dependency_dict(self, dependencies: dict) -> dict:
         output = {}
         for item in dependencies:

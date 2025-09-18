@@ -31,12 +31,14 @@ class MainMenu():
         menubar.add_cascade(menu=help_menu, label='Help')
 
     def _file_menu_items(self) -> list:
+        # pylint: disable=no-member)
         return [
             MenuItem(f'{txt.CONFIG}{txt.ELLIPSIS}', self._config_frame),
             MenuItem(txt.QUIT, self._dismiss),
         ]
 
     def _help_menu_items(self) -> list:
+        # pylint: disable=no-member)
         return [
             MenuItem(f'About{txt.ELLIPSIS}', self._show_about),
         ]
@@ -51,18 +53,6 @@ class MainMenu():
                  f'Version: {__version__}\n'
                  f'Author: {AUTHOR} {SPACES}')
         messagebox.showinfo(title=f'About {APP_TITLE}', message=about)
-
-    # def _new_project(self, *args) -> None:
-    #     project = simpledialog.askstring('New project', 'Project name',
-    #                                      parent=self.root)
-    #     if not project:
-    #         return
-
-    #     self.project_list.append(project)
-    #     self.project.set(project)
-    #     if project not in self.cmb_project['values']:
-    #         self.cmb_project['values'] += (project,)
-    #     self.projects[project] = ['', '']
 
     def _dismiss(self) -> None:
         """Quit the application."""

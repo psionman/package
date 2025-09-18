@@ -107,13 +107,13 @@ class SearchFrame():
     def _button_frame(self, master: tk.Frame) -> tk.Frame:
         frame = ButtonFrame(master, tk.HORIZONTAL)
         self.search_button = IconButton(
-            frame, 'Search', 'search', True, self._start_process)
+            frame, 'Search', 'search', self._start_process, True)
         self.copy_button = IconButton(
-            frame, 'Copy', 'copy_clipboard', True, self._copy)
+            frame, 'Copy', 'copy_clipboard', self._copy, True)
         frame.buttons = [
             self.search_button,
             self.copy_button,
-            frame.icon_button('exit', False, self._dismiss),
+            frame.icon_button('exit', self._dismiss),
         ]
         frame.enable(False)
         return frame

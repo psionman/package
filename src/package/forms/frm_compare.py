@@ -126,8 +126,8 @@ class CompareFrame():
     def _button_frame(self, master: tk.Frame) -> tk.Frame:
         frame = ButtonFrame(master, tk.HORIZONTAL)
         frame.buttons = [
-            frame.icon_button('diff', True, self.show_diff),
-            frame.icon_button('exit', False, self._dismiss),
+            frame.icon_button('diff', self.show_diff, True),
+            frame.icon_button('exit', self._dismiss),
         ]
         frame.enable(False)
         return frame
@@ -154,6 +154,7 @@ class CompareFrame():
 
     def _missing_frame(self, container: ttk.Frame,
                        missing: list[tuple]) -> ttk.Frame:
+        # pylint: disable=no-member)
         frame = ttk.Frame(container)
         frame.grid(row=9, column=0, padx=PAD)
         self.destroy_widgets.append(frame)

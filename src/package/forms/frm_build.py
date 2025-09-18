@@ -3,7 +3,7 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
 
-from psiutils.buttons import Button, enable_buttons, ButtonFrame
+from psiutils.buttons import ButtonFrame
 from psiutils.widgets import clickable_widget
 from psiutils.constants import PAD, DIALOG_STATUS
 from psiutils.utilities import window_resize, geometry
@@ -21,6 +21,7 @@ FRAME_TITLE = 'Build package'
 
 class BuildFrame():
     def __init__(self, parent, project):
+        # pylint: disable=no-member)
         self.root = tk.Toplevel(parent.root)
         self.parent = parent
         self.config = read_config()
@@ -40,7 +41,7 @@ class BuildFrame():
         if os.getcwd() != self.project.project_dir:
             self.status.set(txt.NOT_IN_PROJECT_DIR)
 
-        self.buttons = None
+        self.button_frame = None
         self.history_text = None
 
         self._show()
@@ -61,14 +62,14 @@ class BuildFrame():
         main_frame = self._main_frame(root)
         main_frame.grid(row=1, column=0, sticky=tk.NSEW)
 
-        button_frame = self._button_frame(root)
-        button_frame.grid(row=9, column=0, sticky=tk.EW, padx=PAD, pady=PAD)
+        self.button_frame = self._button_frame(root)
+        self.button_frame.grid(row=9, column=0, sticky=tk.EW, padx=PAD, pady=PAD)
 
         sizegrip = ttk.Sizegrip(root)
         sizegrip.grid(row=99, column=2, sticky=tk.SE)
 
         if config.last_project:
-            enable_buttons(self.buttons, True)
+            self.button_frame.enable()
 
     def _main_frame(self, container: tk.Frame) -> tk.Frame:
         frame = ttk.Frame(container)
@@ -129,19 +130,11 @@ class BuildFrame():
     def _button_frame(self, master: tk.Frame) -> tk.Frame:
         """Create button row."""
         frame = ButtonFrame(master, tk.HORIZONTAL)
-        self.buttons = [
-            Button(
-                frame,
-                text='Update',
-                command=self._build),
-            Button(
-                frame,
-                text=txt.EXIT,
-                command=self.__dismiss,
-                sticky=tk.E),
+        frame.buttons = [
+            frame.icon_button('build', self._build, True),
+            frame.icon_button('exit', self._dismiss),
         ]
-        frame.buttons = self.buttons
-        enable_buttons(self.buttons, False)
+        frame.disable()
         return frame
 
     def _build(self, *args) -> None:
@@ -170,7 +163,7 @@ class BuildFrame():
                 'Module not updated',
                 parent=self.root
             )
-        self.__dismiss()
+        self._dismiss()
 
-    def __dismiss(self):
+    def _dismiss(self):
         self.root.destroy()
