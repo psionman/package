@@ -11,6 +11,7 @@ dependencies = [
     "clipboard>=0.0.4",
     "dotenv>=0.9.9",
     "icecream>=2.1.4",
+    "jedi>=0.19.2",
     "markdown>=3.8",
     "psiutils>=0.2.10",
     "pygobject>=3.54.0",
@@ -20,7 +21,9 @@ dependencies = [
 ]
 
 [dependency-groups]
-dev = ['pytest']
+dev = [
+    "pytest",
+    "jedi>=0.19.2",]
 
 [build-system]
 requires = ['uv-build']

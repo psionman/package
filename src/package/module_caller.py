@@ -1,16 +1,18 @@
-
-from projects import ProjectServer
+import sys
 import psiutils as ps
 
-from forms.frm_config import ConfigFrame
-from forms.frm_project_versions import ProjectVersionsFrame
+from package.projects import ProjectServer
+from package.forms.frm_config import ConfigFrame
+# from package.forms.frm_project_versions import ProjectVersionsFrame
+from package.forms.frm_search import SearchFrame
 
 
 class ModuleCaller():
     def __init__(self, root, module) -> None:
         modules = {
             'config': self._config,
-            'project': self._project
+            'project': self._project,
+            'search': self._search
             }
         self.projects = ProjectServer().projects
 
@@ -38,4 +40,11 @@ class ModuleCaller():
 
     def _project(self) -> None:
         dlg = ProjectEditFrame(self, ps.EDIT, projects['psiutils'])
+        self.root.wait_window(dlg.root)
+
+    def _search(self) -> None:
+        search_term = ''
+        if len(sys.argv) > 2:
+            search_term = sys.argv[2]
+        dlg = SearchFrame(self, search_term)
         self.root.wait_window(dlg.root)

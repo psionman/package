@@ -1,5 +1,6 @@
 """SearchFrame for <application>."""
 import os
+import re
 from pathlib import Path
 import tkinter as tk
 from tkinter import ttk
@@ -25,7 +26,7 @@ class SearchFrame():
     Returns:
         None
     """
-    def __init__(self, parent: tk.Frame) -> None:
+    def __init__(self, parent: tk.Frame, search_term: str = '') -> None:
         self.root = tk.Toplevel()
         self.parent = parent
         self.config = read_config()
@@ -40,10 +41,14 @@ class SearchFrame():
         # tk variables
         self.search_text = tk.StringVar()
         self.file_type = tk.StringVar(value='py')
+        self.match_case = tk.BooleanVar()
+        self.match_whole_word = tk.BooleanVar()
 
         self.search_text.trace_add('write', self._check_value_changed)
 
         self._show()
+
+        self.search_text.set(search_term)
 
     def _show(self) -> None:
         root = self.root
@@ -79,6 +84,33 @@ class SearchFrame():
         entry.focus_set()
 
         row += 1
+        options = self._options_frame(frame)
+        options.grid(row=row, column=1, sticky=tk.W)
+
+        row += 1
+        frame.rowconfigure(row, weight=1)
+        self.found_list = tk.Text(frame, height=20)
+        self.found_list.grid(row=row, column=0, columnspan=2, sticky=tk.NSEW)
+        self.found_list.insert('0.0', '')
+
+        return frame
+
+    def _options_frame(self, master: tk.Frame) -> tk.Frame:
+        frame = ButtonFrame(master, tk.HORIZONTAL)
+
+        # Match options
+        row = 0
+        check_button = ttk.Checkbutton(
+            frame, text='Match case', variable=self.match_case)
+        check_button.grid(row=row, column=0, sticky=tk.W)
+
+        row += 1
+        check_button = ttk.Checkbutton(
+            frame, text='Match whole word', variable=self.match_whole_word)
+        check_button.grid(row=row, column=0, sticky=tk.W)
+
+        # File options
+        row = 0
         button = ttk.Radiobutton(
             frame,
             text='.py files',
@@ -95,12 +127,6 @@ class SearchFrame():
             value='all',
         )
         button.grid(row=row, column=1, sticky=tk.W)
-
-        row += 1
-        frame.rowconfigure(row, weight=1)
-        self.found_list = tk.Text(frame, height=20)
-        self.found_list.grid(row=row, column=0, columnspan=2, sticky=tk.NSEW)
-        self.found_list.insert('0.0', '')
 
         return frame
 
@@ -131,8 +157,11 @@ class SearchFrame():
             if self._parse_project(project.base_dir)
         ]
         self.found_list.insert('0.0', '\n'.join(sorted(self.found)))
+        print(f'{self.found=}')
         if self.found:
             self.copy_button.enable()
+        else:
+            self.found_list.insert('0.0', 'No items found')
 
     def _parse_project(self, search_dir: str) -> bool:
         found = False
@@ -153,7 +182,25 @@ class SearchFrame():
     def _contains_search_text(self, path: str) -> bool:
         with open(path, 'r', encoding='utf-8') as f_test:
             file_text = f_test.read()
-        return self.search_text.get() in file_text
+
+        search = self.search_text.get()
+        if not self.match_case.get():
+            search = search.lower()
+        search_re = rf'\b{re.escape(search)}\b'
+
+        if not self.match_case.get() and not self.match_whole_word.get():
+            return search in file_text.lower()
+
+        if self.match_case.get() and not self.match_whole_word.get():
+            return search in file_text
+
+        if not self.match_case.get() and self.match_whole_word.get():
+            return re.findall(search_re, file_text.lower())
+
+        if self.match_case.get() and self.match_whole_word.get():
+            return re.findall(search_re, file_text)
+
+        return False
 
     def _ignore_path(self, path: str) -> bool:
         ignore = [

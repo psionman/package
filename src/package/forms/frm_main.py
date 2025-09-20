@@ -207,7 +207,7 @@ class MainFrame():
         self.windows_build_button = IconButton(
             frame, txt.BUILD_FOR_WINDOWS, 'windows', self._build_for_windows)
         frame.buttons = [
-            frame.icon_button('new', self._new_project),
+            # frame.icon_button('new', self._new_project),
             frame.icon_button('edit', self._edit_project, True),
             self.build_button,
             frame.icon_button('update', self._update_pyproject),
@@ -218,7 +218,7 @@ class MainFrame():
             self.compare_button,
             self.refresh_button,
             self.windows_build_button,
-            frame.icon_button('search', self._search_for_content, True),
+            # frame.icon_button('search', self._search_for_content, True),
             frame.icon_button('delete', self._delete_project, True),
             frame.icon_button('close', self._dismiss),
         ]
@@ -243,7 +243,7 @@ class MainFrame():
         self.windows_build_menu_item = MenuItem(
             txt.BUILD_FOR_WINDOWS, self._build_for_windows, dimmable=True)
         menu_items = [
-            MenuItem(txt.NEW, self._new_project, dimmable=False),
+            # MenuItem(txt.NEW, self._new_project, dimmable=False),
             MenuItem(txt.EDIT, self._edit_project, dimmable=True),
             self.build_menu_item,
             MenuItem(txt.UPDATE, self._update_pyproject, dimmable=True),
@@ -261,19 +261,22 @@ class MainFrame():
         return context_menu
 
     def _new_project(self, *args) -> None:
-        dlg = ProjectEditFrame(self, ps.NEW)
+        # pylint: disable=no-member)
+        dlg = ProjectEditFrame(self, txt.NEW)
         self.root.wait_window(dlg.root)
-        self._update_projects(dlg)
+        self.update_projects(dlg)
 
     def _edit_project(self, *args) -> None:
-        dlg = ProjectEditFrame(self, ps.EDIT, self.project)
+        # pylint: disable=no-member)
+        dlg = ProjectEditFrame(self, txt.EDIT, self.project)
         self.root.wait_window(dlg.root)
-        self._update_projects(dlg)
+        self.update_projects(dlg)
 
     def _compare_project(self, refresh: bool = False) -> None:
-        dlg = ProjectVersionsFrame(self, ps.EDIT, self.project, refresh)
+        # pylint: disable=no-member)
+        dlg = ProjectVersionsFrame(self, txt.EDIT, self.project, refresh)
         self.root.wait_window(dlg.root)
-        self._update_projects(dlg)
+        self.update_projects(dlg)
 
     def _refresh_project(self, *args) -> None:
         self._compare_project(True)
@@ -289,7 +292,7 @@ class MainFrame():
         del self.projects[self.project.name]
         self._save_projects()
 
-    def _update_projects(self, dlg: ttk.Frame) -> None:
+    def update_projects(self, dlg: ttk.Frame) -> None:
         if dlg.status != ps.UPDATED:
             return
         self.projects[dlg.project.name] = dlg.project

@@ -189,6 +189,7 @@ class ProjectEditFrame():
         if self.mode == ps.NEW:
             self.project = Project()
             self.project.name = self.project_name.get()
+            self.projects[self.project.name] = self.project
 
             logger.info(
                 "New project",
@@ -198,6 +199,7 @@ class ProjectEditFrame():
         self.project.pypi = self.pypi.get()
         self.project.build_for_windows = self.build_for_windows.get()
         self.project.script = self.script.get()
+
 
         logger.info(
             "Project changed",

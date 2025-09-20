@@ -124,6 +124,7 @@ class Project():
         """Return path to requirements file."""
         return Path(self.base_dir, 'requirements.txt')
 
+
     @property
     def history_path(self) -> Path:
         """Return path to History file."""
@@ -157,6 +158,8 @@ class Project():
         return Path(self.base_dir, PYPROJECT_TOML)
 
     def _get_new_history(self) -> str:
+        if not self.history:
+            return []
         history = self.history.split('\n')
         date = datetime.now().strftime('%d %B %Y')
         version = f'Version {self.next_version()} - {date}'
@@ -189,7 +192,7 @@ class Project():
         self.py_project_missing = False
 
         pyproject_text = io.read_text_file(self.pyproject_path)
-        if not pyproject_text:
+        if pyproject_text == DIALOG_STATUS['error']:
             self.py_project_missing = True
             print(f'pyproject.toml missing {self.pyproject_path}')
             return default
@@ -209,6 +212,8 @@ class Project():
         """Update project attributes."""
         self.project_version = self._get_project_version()
         self.history = io.read_text_file(self.history_path)
+        if self.history == DIALOG_STATUS['error']:
+            self.history = ''
         self.new_history = self._get_new_history()
         self.pyproject_version = self._get_pyproject_version()
 

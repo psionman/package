@@ -83,6 +83,18 @@ wheels = [
 ]
 
 [[package]]
+name = "jedi"
+version = "0.19.2"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "parso" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/72/3a/79a912fbd4d8dd6fbb02bf69afd3bb72cf0c729bb3063c6f4498603db17a/jedi-0.19.2.tar.gz", hash = "sha256:4770dc3de41bde3966b02eb84fbcf557fb33cce26ad23da12c742fb50ecb11f0", size = 1231287, upload-time = "2024-11-11T01:41:42.873Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/c0/5a/9cac0c82afec3d09ccd97c8b6502d48f165f9124db81b4bcb90b4af974ee/jedi-0.19.2-py2.py3-none-any.whl", hash = "sha256:a8ef22bde8490f57fe5c7681a3c83cb58874daf72b4784de3cce5b6ef6edb5b9", size = 1572278, upload-time = "2024-11-11T01:41:40.175Z" },
+]
+
+[[package]]
 name = "markdown"
 version = "3.8.2"
 source = { registry = "https://pypi.org/simple" }
@@ -100,6 +112,7 @@ dependencies = [
     { name = "clipboard" },
     { name = "dotenv" },
     { name = "icecream" },
+    { name = "jedi" },
     { name = "markdown" },
     { name = "psiutils" },
     { name = "pygobject" },
@@ -119,8 +132,9 @@ requires-dist = [
     { name = "clipboard", specifier = ">=0.0.4" },
     { name = "dotenv", specifier = ">=0.9.9" },
     { name = "icecream", specifier = ">=2.1.4" },
+    { name = "jedi", specifier = ">=0.19.2" },
     { name = "markdown", specifier = ">=3.8" },
-    { name = "psiutils", specifier = ">=0.2.5" },
+    { name = "psiutils", specifier = ">=0.2.10" },
     { name = "pygobject", specifier = ">=3.54.0" },
     { name = "python-dateutil", specifier = ">=2.9.0.post0" },
     { name = "structlog", specifier = ">=25.4.0" },
@@ -137,6 +151,15 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/a1/d4/1fc4078c65507b51b96ca8f8c3ba19e6a61c8253c72794544580a7b6c24d/packaging-25.0.tar.gz", hash = "sha256:d443872c98d677bf60f6a1f2f8c1cb748e8fe762d2bf9d3148b5599295b0fc4f", size = 165727, upload-time = "2025-04-19T11:48:59.673Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/20/12/38679034af332785aac8774540895e234f4d07f7545804097de4b666afd8/packaging-25.0-py3-none-any.whl", hash = "sha256:29572ef2b1f17581046b3a2227d5c611fb25ec70ca1ba8554b24b0e69331a484", size = 66469, upload-time = "2025-04-19T11:48:57.875Z" },
+]
+
+[[package]]
+name = "parso"
+version = "0.8.5"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/d4/de/53e0bcf53d13e005bd8c92e7855142494f41171b34c2536b86187474184d/parso-0.8.5.tar.gz", hash = "sha256:034d7354a9a018bdce352f48b2a8a450f05e9d6ee85db84764e9b6bd96dafe5a", size = 401205, upload-time = "2025-08-23T15:15:28.028Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/16/32/f8e3c85d1d5250232a5d3477a2a28cc291968ff175caeadaf3cc19ce0e4a/parso-0.8.5-py2.py3-none-any.whl", hash = "sha256:646204b5ee239c396d040b90f9e272e9a8017c630092bf59980beb62fd033887", size = 106668, upload-time = "2025-08-23T15:15:25.663Z" },
 ]
 
 [[package]]
@@ -232,7 +255,7 @@ wheels = [
 
 [[package]]
 name = "psiutils"
-version = "0.2.5"
+version = "0.2.10"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "iniconfig" },
@@ -248,9 +271,9 @@ dependencies = [
     { name = "tomli" },
     { name = "tomli-w" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/eb/b9/503de209a4d53d0d0503a7a0896f1382b9ef32e0783a0301b9fd6b20e7d5/psiutils-0.2.5.tar.gz", hash = "sha256:4667ce40de2bd3f27efcdd3f3f9ef54b8aa136fa1a91df3de9557ebc909b098b", size = 63827, upload-time = "2025-09-08T11:15:45.414Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/03/db/23bea8956e15cf06d06017dc93c457ef46a590adf92093bf7448a781e220/psiutils-0.2.10.tar.gz", hash = "sha256:c83877ee0c50b4ffc9e044550ac523df880025a975c6b30de629779d0af53f7f", size = 64627, upload-time = "2025-09-17T14:42:57.331Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/fd/e2/77f77ef8568724dcd8a263b5d54ae1483bf7ec26f201205a9d40c2fdc253/psiutils-0.2.5-py3-none-any.whl", hash = "sha256:fa9ce5f5201414a670e5f4f1b5b7548d5bcd3b41fee1cbb82b5bd7c205bbf247", size = 76040, upload-time = "2025-09-08T11:15:43.7Z" },
+    { url = "https://files.pythonhosted.org/packages/2c/89/034e8b04d84257b2ccabde1ca890eb260128072c03959917198676faec6a/psiutils-0.2.10-py3-none-any.whl", hash = "sha256:42868dd367af72676f9a9fa8bfb625a225ee5d85b9c36724ee13ee5e5b180abf", size = 76944, upload-time = "2025-09-17T14:42:56.091Z" },
 ]
 
 [[package]]
