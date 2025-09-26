@@ -1,5 +1,10 @@
 import sys
+<<<<<<< HEAD
 import psiutils as ps
+=======
+
+from psiutils.constants import Mode
+>>>>>>> 19b7e7a (Reinitialize repository with cloned files)
 
 from package.projects import ProjectServer
 from package.forms.frm_config import ConfigFrame
@@ -39,7 +44,11 @@ class ModuleCaller():
         self.root.wait_window(dlg.root)
 
     def _project(self) -> None:
+<<<<<<< HEAD
         dlg = ProjectEditFrame(self, ps.EDIT, projects['psiutils'])
+=======
+        dlg = ProjectEditFrame(self, Mode.EDIT, projects['psiutils'])
+>>>>>>> 19b7e7a (Reinitialize repository with cloned files)
         self.root.wait_window(dlg.root)
 
     def _search(self) -> None:

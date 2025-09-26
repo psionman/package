@@ -10,6 +10,10 @@ from psiutils.constants import DIALOG_STATUS
 from package import logger
 
 from package.projects import Project
+<<<<<<< HEAD
+=======
+from package.modules import check_imports
+>>>>>>> 19b7e7a (Reinitialize repository with cloned files)
 
 try:
     load_dotenv()

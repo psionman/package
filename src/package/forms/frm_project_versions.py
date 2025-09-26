@@ -15,8 +15,12 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 from pathlib import Path
 
+<<<<<<< HEAD
 import psiutils as ps
 from psiutils.constants import PAD
+=======
+from psiutils.constants import PAD, Status, Mode
+>>>>>>> 19b7e7a (Reinitialize repository with cloned files)
 from psiutils.buttons import ButtonFrame
 from psiutils.utilities import window_resize, geometry
 
@@ -50,7 +54,11 @@ class ProjectVersionsFrame():
         root (tk.Toplevel): The top-level window for this frame.
         parent: The parent window or frame.
         config (dict): Configuration values loaded via `read_config`.
+<<<<<<< HEAD
         mode (int): Determines whether fields are editable (e.g., `ps.EDIT`).
+=======
+        mode (int): Determines whether fields are editable (e.g., `Mode.EDIT`).
+>>>>>>> 19b7e7a (Reinitialize repository with cloned files)
         project (Project): The project currently being displayed
             and manipulated.
         projects (list): A list of available projects from the parent.
@@ -101,7 +109,11 @@ class ProjectVersionsFrame():
             refresh = True
         self.refresh = refresh
 
+<<<<<<< HEAD
         self.status = ps.NULL
+=======
+        self.status = Status.NULL
+>>>>>>> 19b7e7a (Reinitialize repository with cloned files)
 
         if not project:
             project = Project()
@@ -161,7 +173,11 @@ class ProjectVersionsFrame():
         label = ttk.Label(frame, text='Project name')
         label.grid(row=0, column=0, sticky=tk.E, pady=PAD)
 
+<<<<<<< HEAD
         state = 'readonly' if self.mode == ps.EDIT else 'normal'
+=======
+        state = 'readonly' if self.mode == Mode.EDIT else 'normal'
+>>>>>>> 19b7e7a (Reinitialize repository with cloned files)
         entry = ttk.Entry(frame, textvariable=self.project_name, state=state)
         entry.grid(row=0, column=1, sticky=tk.EW, padx=PAD)
         entry.focus_set()
