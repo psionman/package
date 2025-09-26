@@ -4,12 +4,7 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 import subprocess
 
-<<<<<<< HEAD
-import psiutils as ps
-from psiutils.constants import PAD
-=======
 from psiutils.constants import PAD, Status
->>>>>>> 19b7e7a (Reinitialize repository with cloned files)
 from psiutils.buttons import ButtonFrame, IconButton
 from psiutils.treeview import sort_treeview
 from psiutils.menus import Menu, MenuItem
@@ -297,22 +292,14 @@ class MainFrame():
         self._save_projects()
 
     def update_projects(self, dlg: ttk.Frame) -> None:
-<<<<<<< HEAD
-        if dlg.status != ps.UPDATED:
-=======
         if dlg.status != Status.UPDATED:
->>>>>>> 19b7e7a (Reinitialize repository with cloned files)
             return
         self.projects[dlg.project.name] = dlg.project
         self._save_projects()
 
     def _save_projects(self) -> None:
         result = self.project_server.save_projects(self.projects)
-<<<<<<< HEAD
-        if result == ps.ERROR:
-=======
         if result == Status.ERROR:
->>>>>>> 19b7e7a (Reinitialize repository with cloned files)
             messagebox.showerror(
                 'Save',
                 'Save failed',

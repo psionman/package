@@ -1,13 +1,8 @@
 import tkinter as tk
 from tkinter import messagebox
 
-<<<<<<< HEAD
-import psiutils as ps
-from psiutils.menus import Menu, MenuItem
-=======
 from psiutils.menus import Menu, MenuItem
 from psiutils.constants import Mode
->>>>>>> 19b7e7a (Reinitialize repository with cloned files)
 
 from package.constants import AUTHOR, APP_TITLE
 from package._version import __version__
@@ -78,11 +73,7 @@ class MainMenu():
 
     def _new_project(self, *args) -> None:
         # pylint: disable=no-member)
-<<<<<<< HEAD
-        dlg = ProjectEditFrame(self, ps.NEW)
-=======
         dlg = ProjectEditFrame(self, Mode.NEW)
->>>>>>> 19b7e7a (Reinitialize repository with cloned files)
         self.parent.update_projects(dlg)
 
     def _search_for_content(self, * args):

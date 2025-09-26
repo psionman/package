@@ -4,12 +4,7 @@ import tkinter as tk
 from tkinter import ttk, filedialog
 from pathlib import Path
 
-<<<<<<< HEAD
-import psiutils as ps
-from psiutils.constants import PAD
-=======
 from psiutils.constants import PAD, Status, Mode
->>>>>>> 19b7e7a (Reinitialize repository with cloned files)
 from psiutils.buttons import ButtonFrame, IconButton
 from psiutils.utilities import window_resize, geometry
 
@@ -41,11 +36,7 @@ class ProjectEditFrame():
         if project:
             project.env_versions: list = project.get_versions()
 
-<<<<<<< HEAD
-        self.status = ps.NULL
-=======
         self.status = Status.NULL
->>>>>>> 19b7e7a (Reinitialize repository with cloned files)
 
         if not project:
             project = Project()
@@ -103,11 +94,7 @@ class ProjectEditFrame():
         label = ttk.Label(frame, text='Project name')
         label.grid(row=row, column=0, sticky=tk.E, pady=PAD)
 
-<<<<<<< HEAD
-        state = 'readonly' if self.mode == ps.EDIT else 'normal'
-=======
         state = 'readonly' if self.mode == Mode.EDIT else 'normal'
->>>>>>> 19b7e7a (Reinitialize repository with cloned files)
         entry = ttk.Entry(frame, textvariable=self.project_name, state=state)
         entry.grid(row=row, column=1, sticky=tk.EW, padx=PAD)
         entry.focus_set()
@@ -198,11 +185,7 @@ class ProjectEditFrame():
 
     def _save(self, *args) -> None:
         changes = self._record_changes()
-<<<<<<< HEAD
-        if self.mode == ps.NEW:
-=======
         if self.mode == Mode.NEW:
->>>>>>> 19b7e7a (Reinitialize repository with cloned files)
             self.project = Project()
             self.project.name = self.project_name.get()
             self.projects[self.project.name] = self.project
@@ -224,11 +207,7 @@ class ProjectEditFrame():
 
         self.parent.project_server.save_projects(self.projects)
         self.project_version.set(self.project.version_text)
-<<<<<<< HEAD
-        self.status = ps.UPDATED
-=======
-        self.status = status.UPDATED
->>>>>>> 19b7e7a (Reinitialize repository with cloned files)
+        self.status = Status.UPDATED
         self._dismiss()
 
     def _record_changes(self) -> dict:
