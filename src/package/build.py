@@ -28,7 +28,7 @@ def update_module(context: dict) -> int:
         "Starting build process",
         project=project.name,
     )
-    # check_imports(project.)
+    check_imports(project.source_dir)
 
     if not context['test_build']:
         if _update_version(project, context['version']) != DIALOG_STATUS['ok']:

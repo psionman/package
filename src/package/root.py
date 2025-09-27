@@ -5,9 +5,9 @@ import contextlib
 from psiutils.widgets import get_styles
 
 
-from constants import ICON_FILE
-from forms.frm_main import MainFrame
-from module_caller import ModuleCaller
+from package.constants import ICON_FILE
+from package.forms.frm_main import MainFrame
+from package.module_caller import ModuleCaller
 
 
 class Root():

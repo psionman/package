@@ -6,14 +6,18 @@ import re
 from package import logger
 
 
-TEST_DIR = '/home/jeff/projects/utilities/windows-converter/src/windows_converter'
+TEST_DIR = '/home/jeff/projects/utilities/package/src/package'
 
+STARTS_WITH = ('from', 'import')
+IMPORTS = (
+    'psiutils',
+)
 
-def check_imports(source_dir: str) -> None:
+def check_imports(package: str, source_dir: str) -> None:
     modules = _get_modules(source_dir)
     for path in modules.values():
         text = _get_text(path)
-        _check_imports(list(modules), path.stem, text)
+        _check_imports(list(modules), package, source_dir, path.stem, text)
 
 
 def _get_modules(module_dir: str) -> dict:
@@ -32,19 +36,29 @@ def _get_text(path: str) -> list:
         return f_module.read().split('\n')
 
 
-def _check_imports(modules: list, module_name: str, text: list) -> None:
-    starts_with = ('from', 'import')
+def _check_imports(
+        modules: list,
+        package: str,
+        source_dir: str,
+        module_name: str,
+        text: list) -> None:
     for index, line in enumerate(text):
-        import_line = any(line.startswith(start) for start in starts_with)
+        import_line = any(line.startswith(start) for start in STARTS_WITH)
         if not import_line:
             continue
+
+        imported_package = (line.split()[1]).split('.')[0]
+        if imported_package in IMPORTS:
+            continue
+
         for module in modules:
             module_re = rf'\b{module}\b'
-            if re.search(module_re, line) and '.' not in line:
+            if re.search(module_re, line) and f'{package}.' not in line:
                 print(module_name, module, line)
                 logger.warning(
-                    f'Missing package definition in {module_name}: {index+1}')
+                    (f'Missing package definition in '
+                     f'{source_dir}/{module_name}: {index+1}'))
 
 
 if __name__ == "__main__":
-    check_imports(TEST_DIR)
+    check_imports('package', TEST_DIR)
