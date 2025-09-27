@@ -34,8 +34,8 @@ class Project():
         """
 
         self.name: str = ''
-        self.project_dir: str = ''
-        self._project_dir_short: str = ''
+        self.source_dir: str = ''
+        self._source_dir_short: str = ''
         self._base_dir: Path = None
         self.env_dir: str = ''
         self._env_dir_short: str = ''
@@ -67,8 +67,8 @@ class Project():
         return self._short_dir(self.env_dir)
 
     @property
-    def project_dir_short(self) -> str:
-        return self._short_dir(self.project_dir)
+    def source_dir_short(self) -> str:
+        return self._short_dir(self.source_dir)
 
     def serialize(self) -> dict:
         """
@@ -78,7 +78,7 @@ class Project():
                 dict: A dictionary containing serialized project data.
         """
         return {
-            'dir': self.project_dir,
+            'dir': self.source_dir,
             'pypi': self.pypi,
             'build_for_windows': self.build_for_windows,
             'cached_envs': {key: item.serialize()
@@ -95,7 +95,7 @@ class Project():
         return self._get_version_text(raw_text)
 
     def _get_project_version(self) -> str:
-        raw_text = io.read_text_file(Path(self.project_dir, VERSION_FILE))
+        raw_text = io.read_text_file(Path(self.source_dir, VERSION_FILE))
         if raw_text == DIALOG_STATUS['error']:
             return ''
         return self._get_version_text(raw_text)
@@ -113,7 +113,7 @@ class Project():
     def base_dir(self) -> Path:
         """Return path to base directory of the project."""
         if not self._base_dir:
-            self._base_dir = Path(self.project_dir).parent
+            self._base_dir = Path(self.source_dir).parent
             if not Path(self._base_dir, 'pyproject.toml').is_file():
                 self._base_dir = self._base_dir.parent
         return self._base_dir
@@ -149,7 +149,7 @@ class Project():
     @property
     def version_path(self) -> Path:
         """Return path to version file."""
-        return Path(self.project_dir, VERSION_FILE)
+        return Path(self.source_dir, VERSION_FILE)
 
     @property
     def pyproject_path(self) -> Path:
@@ -169,7 +169,7 @@ class Project():
         """Return the next version string."""
         version = self.project_version.split('.')
         if 'missing' in version[0]:
-            path = Path(self.project_dir, VERSION_FILE)
+            path = Path(self.source_dir, VERSION_FILE)
             print(f' version file missing {path}')
             return ''
         if len(version) != 3:
@@ -412,7 +412,7 @@ class ProjectServer():
             project.name = key
             project_dict[key] = project
 
-            project.project_dir = item['dir']
+            project.source_dir = item['dir']
             project.pypi = item['pypi']
             if 'build_for_windows' not in item:
                 item['build_for_windows'] = False

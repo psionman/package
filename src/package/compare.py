@@ -4,13 +4,13 @@ from pathlib import Path
 from package.config import config
 
 
-def compare(project_dir: str, env_dir: str) -> list[str]:
+def compare(source_dir: str, env_dir: str) -> list[str]:
     """Compare the standard and dev versions of the package."""
     # comparison is a dict keyed on file name
     # each element contains 'project' and 'env' entries if the file exists in
     # the relevant directories
     comparison = {}
-    comparison = _build_comparison(comparison, project_dir, 'project')
+    comparison = _build_comparison(comparison, source_dir, 'project')
     comparison = _build_comparison(comparison, env_dir, 'env')
 
     missing = _compare_existence(comparison)

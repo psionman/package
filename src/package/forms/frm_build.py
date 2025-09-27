@@ -38,7 +38,7 @@ class BuildFrame():
         self.status = tk.StringVar()
         self.test_build = tk.BooleanVar(value=False)
 
-        if os.getcwd() != self.project.project_dir:
+        if os.getcwd() != self.project.source_dir:
             self.status.set(txt.NOT_IN_PROJECT_DIR)
 
         self.button_frame = None

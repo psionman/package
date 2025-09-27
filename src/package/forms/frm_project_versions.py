@@ -57,7 +57,7 @@ class ProjectVersionsFrame():
         versions_frame (tk.Frame): Frame containing version selection buttons.
         button_frame (tk.Frame):
             Frame containing action buttons (Compare, Build, Exit).
-        project_name, env_dir, project_dir, project_version,
+        project_name, env_dir, source_dir, project_version,
             version (tk.StringVar):
 
         Tkinter variables bound to GUI widgets,
@@ -105,20 +105,20 @@ class ProjectVersionsFrame():
         if not project:
             project = Project()
             project.env_dir = DEFAULT_DEV_DIR
-            project.project_dir = DEFAULT_PROJECT_DIR
+            project.source_dir = DEFAULT_PROJECT_DIR
         self.project = project
 
         # tk variables
         self.project_name = tk.StringVar(value=project.name)
         self.env_dir = tk.StringVar(value=project.env_dir)
-        self.project_dir = tk.StringVar(value=project.project_dir)
+        self.source_dir = tk.StringVar(value=project.source_dir)
         self.project_version = tk.StringVar(value=self.project.version_text)
         self.version = tk.StringVar()
 
         # Trace
         self.project_name.trace_add('write', self._values_changed)
         self.env_dir.trace_add('write', self._values_changed)
-        self.project_dir.trace_add('write', self._values_changed)
+        self.source_dir.trace_add('write', self._values_changed)
         self.version.trace_add('write', self._values_changed)
 
         self._show()
@@ -179,7 +179,7 @@ class ProjectVersionsFrame():
         label.grid(row=3, column=0, sticky=tk.E, pady=PAD)
 
         entry = ttk.Entry(
-            frame, textvariable=self.project_dir, state='readonly')
+            frame, textvariable=self.source_dir, state='readonly')
         entry.grid(row=3, column=1, columnspan=2, padx=PAD, sticky=tk.EW)
 
         label = ttk.Label(frame, text='Development version')
@@ -252,7 +252,7 @@ class ProjectVersionsFrame():
         for row, name in enumerate(sorted(list(versions))):
             version = versions[name]
             style = ''
-            (missing, mismatches) = compare(self.project.project_dir,
+            (missing, mismatches) = compare(self.project.source_dir,
                                             version.dir)
             style = ''
             mismatch_str = ''
@@ -363,12 +363,12 @@ class ProjectVersionsFrame():
         parts = Path(env_version.dir).parts
         if '.venv' in parts:
             index = parts.index('.venv')
-            project_dir = Path(*parts[:index])
-            return os.path.join(project_dir, '.venv', 'bin', 'python')
+            source_dir = Path(*parts[:index])
+            return os.path.join(source_dir, '.venv', 'bin', 'python')
         if '.pyenv' in parts:
             index = parts.index('versions')
-            project_dir = Path(*parts[:index+2])
-            return os.path.join(project_dir, 'bin', 'python')
+            source_dir = Path(*parts[:index+2])
+            return os.path.join(source_dir, 'bin', 'python')
 
         messagebox.showerror('', 'Virtualenv not found')
         return ''

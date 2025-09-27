@@ -20,9 +20,6 @@ DEFAULT_DEV_DIR = str(Path(Path.home(), '.pyenv', 'versions'))
 DEFAULT_PROJECT_DIR = str(Path(Path.home(), 'projects'))
 DEFAULT_VERSION_TEXT = '0.0.0'
 
-VERSION = 5
-PYTHON_VERSION = 7
-PROJECT = 9
 
 
 class ProjectEditFrame():
@@ -40,7 +37,7 @@ class ProjectEditFrame():
 
         if not project:
             project = Project()
-            project.project_dir = DEFAULT_PROJECT_DIR
+            project.source_dir = DEFAULT_PROJECT_DIR
             project.version_text = DEFAULT_VERSION_TEXT
             project.pypi = False
         self.project = project
@@ -50,7 +47,7 @@ class ProjectEditFrame():
         # tk variables
         self.project_name = tk.StringVar(value=project.name)
         # self.env_dir = tk.StringVar(value=project.env_dir)
-        self.project_dir = tk.StringVar(value=project.project_dir)
+        self.source_dir = tk.StringVar(value=project.source_dir)
         self.project_version = tk.StringVar(value=project.version_text)
         self.version = tk.StringVar(value=project.version_text)
         self.pypi = tk.BooleanVar(value=project.pypi)
@@ -59,7 +56,7 @@ class ProjectEditFrame():
 
         # Trace
         self.project_name.trace_add('write', self._check_value_changed)
-        self.project_dir.trace_add('write', self._check_value_changed)
+        self.source_dir.trace_add('write', self._check_value_changed)
         self.version.trace_add('write', self._check_value_changed)
         self.pypi.trace_add('write', self._check_value_changed)
         self.build_for_windows.trace_add('write', self._check_value_changed)
@@ -112,14 +109,14 @@ class ProjectEditFrame():
         entry.grid(row=row, column=1, sticky=tk.EW, padx=PAD)
 
         row += 1
-        label = ttk.Label(frame, text='Project dir')
+        label = ttk.Label(frame, text='Source dir')
         label.grid(row=row, column=0, sticky=tk.E, pady=PAD)
 
-        entry = ttk.Entry(frame, textvariable=self.project_dir)
+        entry = ttk.Entry(frame, textvariable=self.source_dir)
         entry.grid(row=row, column=1, columnspan=2, padx=PAD, sticky=tk.EW)
 
         button = IconButton(
-            frame, txt.OPEN, 'open', self._get_project_dir)
+            frame, txt.OPEN, 'open', self._get_source_dir)
         button.grid(row=row, column=3)
 
         row += 1
@@ -161,11 +158,11 @@ class ProjectEditFrame():
         frame.enable(False)
         return frame
 
-    def _get_project_dir(self, *args) -> None:
+    def _get_source_dir(self, *args) -> None:
         if directory := filedialog.askdirectory(
-                initialdir=self.project_dir.get(),
+                initialdir=self.source_dir.get(),
                 parent=self.root,):
-            self.project_dir.set(directory)
+            self.source_dir.set(directory)
 
     def _get_script(self, *args) -> None:
         # pylint: disable=no-member)
@@ -194,7 +191,7 @@ class ProjectEditFrame():
                 "New project",
                 name=self.project.name
             )
-        self.project.project_dir = self.project_dir.get()
+        self.project.source_dir = self.source_dir.get()
         self.project.pypi = self.pypi.get()
         self.project.build_for_windows = self.build_for_windows.get()
         self.project.script = self.script.get()
@@ -215,9 +212,9 @@ class ProjectEditFrame():
         if self.project.name != self.project_name.get():
             changes['project_name'] = (
                 self.project.name, self.project_name.get())
-        if self.project.project_dir != self.project_dir.get():
-            changes['project_dir'] = (
-                 self.project.project_dir, self.project_dir.get())
+        if self.project.source_dir != self.source_dir.get():
+            changes['source_dir'] = (
+                 self.project.source_dir, self.source_dir.get())
         if self.project.pypi != self.pypi.get():
             changes['pypi'] = (self.project.pypi, self.pypi.get())
         if self.project.build_for_windows != self.build_for_windows.get():

@@ -38,7 +38,7 @@ class CompareFrame():
         # Tk Variables
         self.project_name = tk.StringVar(value=project.name)
         self.env_dir = tk.StringVar(value=env_version.dir_short)
-        self.project_dir = tk.StringVar(value=project.project_dir_short)
+        self.source_dir = tk.StringVar(value=project.source_dir_short)
         self.env_version_version = tk.StringVar(value=env_version.version)
         self.project_version = tk.StringVar(value=project.project_version)
         self.mismatch = tk.StringVar(value='')
@@ -106,7 +106,7 @@ class CompareFrame():
                           state='readonly')
         entry.grid(row=row, column=1, sticky=tk.EW, padx=PAD)
 
-        entry = ttk.Entry(frame, textvariable=self.project_dir,
+        entry = ttk.Entry(frame, textvariable=self.source_dir,
                           state='readonly')
         entry.grid(row=row, column=2, sticky=tk.EW, padx=PAD)
 
@@ -135,7 +135,7 @@ class CompareFrame():
     def compare_project(self) -> None:
         """Destroy and recreate widgets based on comparison."""
         (missing, mismatches) = compare(
-            self.project.project_dir, self.env_version.dir)
+            self.project.source_dir, self.env_version.dir)
 
         for item in self.destroy_widgets:
             item.destroy()
@@ -243,13 +243,13 @@ class CompareFrame():
         file = self.mismatch.get()
         paths = [
             str(Path(self.env_version.dir, file)),
-            str(Path(self.project.project_dir, file)),
+            str(Path(self.project.source_dir, file)),
         ]
 
         self.root.withdraw()
         subprocess.run(['meld', *paths])
         self.root.deiconify()
-        if self.env_dir.get() and self.project_dir.get():
+        if self.env_dir.get() and self.source_dir.get():
             self.compare_project()
 
     def _copy_file(self, file_name: str) -> None:
@@ -263,7 +263,7 @@ class CompareFrame():
         if not dlg:
             return
 
-        destination = Path(self.project.project_dir, file_name)
+        destination = Path(self.project.source_dir, file_name)
 
         if source.is_dir():
             shutil.copytree(source, destination, dirs_exist_ok=True)

@@ -121,12 +121,12 @@ class EnvironmentVersion():
         parts = Path(self.dir).parts
         if '.venv' in parts:
             index = parts.index('.venv')
-            project_dir = Path(*parts[:index])
-            return os.path.join(project_dir, '.venv', 'bin', 'python')
+            source_dir = Path(*parts[:index])
+            return os.path.join(source_dir, '.venv', 'bin', 'python')
         if '.pyenv' in parts:
             index = parts.index('versions')
-            project_dir = Path(*parts[:index+2])
-            return os.path.join(project_dir, 'bin', 'python')
+            source_dir = Path(*parts[:index+2])
+            return os.path.join(source_dir, 'bin', 'python')
         return ''
 
     @property

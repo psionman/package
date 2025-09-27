@@ -28,7 +28,7 @@ FRAME_TITLE = 'Package update and build'
 TREE_COLUMNS = (
     ('name', 'Project', 50),
     ('script', 'Script', 1),
-    ('main', 'project dir', 400),
+    ('main', 'Source dir', 400),
 )
 
 
@@ -136,7 +136,7 @@ class MainFrame():
                 project.name,
                 project.script.replace(
                     f'{self.config.script_directory}/', ''),
-                project.project_dir_short,)
+                project.source_dir_short,)
             item = self.tree.insert('', 'end', values=values)
 
             # pylint: disable=no-member
