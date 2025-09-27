@@ -9,8 +9,8 @@ from package import logger
 TEST_DIR = '/home/jeff/projects/utilities/windows-converter/src/windows_converter'
 
 
-def check_imports(base_dir: str) -> None:
-    modules = _get_modules(base_dir)
+def check_imports(source_dir: str) -> None:
+    modules = _get_modules(source_dir)
     for path in modules.values():
         text = _get_text(path)
         _check_imports(list(modules), path.stem, text)
@@ -42,7 +42,8 @@ def _check_imports(modules: list, module_name: str, text: list) -> None:
             module_re = rf'\b{module}\b'
             if re.search(module_re, line) and '.' not in line:
                 print(module_name, module, line)
-                logger.warning(f'Missing module in {module_name}: {index+1}')
+                logger.warning(
+                    f'Missing package definition in {module_name}: {index+1}')
 
 
 if __name__ == "__main__":

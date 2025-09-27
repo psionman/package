@@ -6,18 +6,10 @@ import re
 import subprocess
 
 from psiutils.constants import DIALOG_STATUS
-<<<<<<< HEAD
-from package import logger
-from psi_toml.parser import TomlParser
-
-from package.config import config
-
-=======
 from psi_toml.parser import TomlParser
 
 from package import logger
 from package.config import config
->>>>>>> 19b7e7a (Reinitialize repository with cloned files)
 from package.env_version import EnvironmentVersion
 from package.constants import (
     PYPROJECT_TOML, DATA_DIR, HISTORY_FILE, VERSION_FILE, VERSION_TEXT)
