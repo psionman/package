@@ -223,7 +223,7 @@ class CompareFrame():
             self.destroy_widgets.append(label)
             return frame
 
-        for row, item in enumerate(mismatches):
+        for row, item in enumerate(sorted(mismatches)):
             button = ttk.Radiobutton(
                 frame,
                 text=item,
