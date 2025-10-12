@@ -21,7 +21,6 @@ DEFAULT_PROJECT_DIR = str(Path(Path.home(), 'projects'))
 DEFAULT_VERSION_TEXT = '0.0.0'
 
 
-
 class ProjectEditFrame():
     def __init__(self, parent, mode: int, project: Project = None) -> None:
         self.root = tk.Toplevel(parent.root)
@@ -195,7 +194,6 @@ class ProjectEditFrame():
         self.project.pypi = self.pypi.get()
         self.project.build_for_windows = self.build_for_windows.get()
         self.project.script = self.script.get()
-
 
         logger.info(
             "Project changed",

@@ -254,7 +254,6 @@ class CompareFrame():
 
     def _copy_file(self, file_name: str) -> None:
         source = Path(self.env_version.dir, file_name)
-        print(f'{source=}')
         item = 'file'
         if source.is_dir():
             item = 'directory'

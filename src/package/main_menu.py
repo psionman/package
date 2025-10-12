@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import messagebox
 
 from psiutils.menus import Menu, MenuItem
-from psiutils.constants import Mode
+from psiutils.constants import Mode, Status
 
 from package.constants import AUTHOR, APP_TITLE
 from package._version import __version__
@@ -23,6 +23,7 @@ class MainMenu():
         self.root = parent.root
         self.projects = parent.projects
         self.project_server = parent.project_server
+        self.status = Status.NULL
 
     def create(self) -> None:
         menubar = tk.Menu()
@@ -74,7 +75,9 @@ class MainMenu():
     def _new_project(self, *args) -> None:
         # pylint: disable=no-member)
         dlg = ProjectEditFrame(self, Mode.NEW)
+        self.root.wait_window(dlg.root)
         self.parent.update_projects(dlg)
+        self.status = dlg.status
 
     def _search_for_content(self, * args):
         dlg = SearchFrame(self)
