@@ -5,7 +5,7 @@ from tkinter import messagebox
 
 from psiutils.buttons import ButtonFrame
 from psiutils.widgets import clickable_widget
-from psiutils.constants import PAD, DIALOG_STATUS
+from psiutils.constants import PAD, Status
 from psiutils.utilities import window_resize, geometry
 
 from package.config import config, read_config
@@ -147,7 +147,7 @@ class BuildFrame():
             'current_history': self.project.history,
             'test_build': self.test_build.get(),
         }
-        if update_module(context) == DIALOG_STATUS['ok']:
+        if update_module(context) == Status.OK:
             messagebox.showinfo(
                 'Module update',
                 'Module updated',

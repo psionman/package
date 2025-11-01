@@ -174,12 +174,16 @@ class ConfigFrame():
             self.script_directory.set(directory)
 
     def _save_config(self):
+        raw_changes = self._config_changes()
         changes = {field: f'(old value={change[0]}, new_value={change[1]})'
-                   for field, change in self._config_changes().items()}
+                   for field, change in raw_changes.items()}
 
         for field in FIELDS:
             self.config.config[field] = getattr(self, field).get()
+        if 'ignore' in raw_changes:
+            self.config.update('ignore', raw_changes['ignore'][1])
 
+        print(f'{self.config.config['ignore']=}')
         logger.info("Config saved", changes=changes)
 
         self._dismiss()
@@ -197,7 +201,7 @@ class ConfigFrame():
         ignore_text = ignore_text.strip('\n')
         ignore_text = ignore_text.split('\n')
         if stored['ignore'] != ignore_text:
-            changes['ignore'] = ignore_text
+            changes['ignore'] = (stored['ignore'], ignore_text)
         return changes
 
     def _set_config(self, *args) -> None:

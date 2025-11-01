@@ -6,7 +6,7 @@ import shutil
 from pathlib import Path
 from dotenv import load_dotenv
 
-from psiutils.constants import DIALOG_STATUS
+from psiutils.constants import Status
 from package import logger
 
 from package.projects import Project
@@ -28,59 +28,59 @@ def update_module(context: dict) -> int:
         "Starting build process",
         project=project.name,
     )
-    check_imports(project.source_dir)
+    check_imports(project.name, project.source_dir)
 
     if not context['test_build']:
-        if _update_version(project, context['version']) != DIALOG_STATUS['ok']:
-            return DIALOG_STATUS['error']
+        if _update_version(project, context['version']) != Status.OK:
+            return Status.ERROR
 
-        if project.update_history(context['history']) != DIALOG_STATUS['ok']:
-            return DIALOG_STATUS['error']
+        if project.update_history(context['history']) != Status.OK:
+            return Status.ERROR
         logger.info(
             "Update history",
             project=project.name,
         )
 
         if (context['delete_build']
-                and _delete_build_dirs(project) != DIALOG_STATUS['ok']):
-            return DIALOG_STATUS['error']
+                and _delete_build_dirs(project) != Status.OK):
+            return Status.ERROR
 
-    if _build(project) != DIALOG_STATUS['ok']:
+    if _build(project) != Status.OK:
         _restore_project(context)
-        return DIALOG_STATUS['error']
+        return Status.ERROR
 
-    if _upload(project, context['test_build']) != DIALOG_STATUS['ok']:
+    if _upload(project, context['test_build']) != Status.OK:
         _restore_project(context)
-        return DIALOG_STATUS['error']
-    return DIALOG_STATUS['ok']
+        return Status.ERROR
+    return Status.OK
 
 
 def _update_version(project: Project, version: str) -> int:
-    if project.update_version(version) != DIALOG_STATUS['ok']:
-        return DIALOG_STATUS['error']
+    if project.update_version(version) != Status.OK:
+        return Status.ERROR
     logger.info(
         "Update version",
         project=project.name,
         version=version
     )
 
-    if project.update_pyproject_version(version) != DIALOG_STATUS['ok']:
-        return DIALOG_STATUS['error']
+    if project.update_pyproject_version(version) != Status.OK:
+        return Status.ERROR
     logger.info(
         "Update pyproject version",
         project=project.name,
         version=version
     )
 
-    return DIALOG_STATUS['ok']
+    return Status.OK
 
 
 def _restore_project(context: dict) -> None:
+    project = context['project']
     logger.info(
         "Restoring project",
         project=project.name,
     )
-    project = context['project']
     _update_version(project, context['current_version'])
     project.update_history(context['current_history'])
 
@@ -94,12 +94,12 @@ def _build(project: Project) -> int:
             "Build failed",
             error=error,
         )
-        return DIALOG_STATUS['error']
+        return Status.ERROR
     logger.info(
         "Build project",
         project=project.name,
     )
-    return DIALOG_STATUS['ok']
+    return Status.OK
 
 
 def _upload(project: Project, test_build: bool = False) -> int:
@@ -128,15 +128,15 @@ def _upload(project: Project, test_build: bool = False) -> int:
                 f'Error! Return code: {proc.returncode}',
                 project=project.name,
                 )
-            return DIALOG_STATUS['error']
+            return Status.ERROR
 
     except FileNotFoundError as error:
         logger.exception(
             f'Error! {error}',
             project=project.name,
             )
-        return DIALOG_STATUS['error']
-    return DIALOG_STATUS['ok']
+        return Status.ERROR
+    return Status.OK
 
 
 def _delete_build_dirs(project: Project) -> int:
@@ -160,5 +160,5 @@ def _delete_build_dirs(project: Project) -> int:
                 )
             except OSError:
                 logger.exception(f'Failed to remove {path}')
-                return DIALOG_STATUS['error']
-    return DIALOG_STATUS['ok']
+                return Status.ERROR
+    return Status.OK

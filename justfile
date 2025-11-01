@@ -4,5 +4,5 @@ list:
 run:
     uv run src/package/main.py
 
-test:
-    uv run -m pytest
+test arg1="":
+    uv run -m pytest {{arg1}}

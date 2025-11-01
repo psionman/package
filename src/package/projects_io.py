@@ -2,7 +2,7 @@
 from pathlib import Path
 import json
 
-from psiutils.constants import DIALOG_STATUS
+from psiutils.constants import Status
 from package import logger
 
 
@@ -14,15 +14,15 @@ def read_text_file(path: str) -> str:
         path (str): The path to the text file.
 
     Returns:
-        str: The content of the text file, or DIALOG_STATUS['error']
+        str: The content of the text file, or Status.ERROR
         if the file is not found.
     """
     try:
         with open(path, 'r', encoding='utf8') as f_text:
             return f_text.read()
     except FileNotFoundError:
-        logger.error(f'File not found {path}')
-        return DIALOG_STATUS['error']
+        logger.warning(f'File not found {path}')
+        return Status.ERROR
 
 
 def update_file(pyproject_path: str, output: str) -> int:
@@ -34,17 +34,20 @@ def update_file(pyproject_path: str, output: str) -> int:
         output (str): The content to write to the file.
 
     Returns:
-        int: The status of the update operation (DIALOG_STATUS['ok']
-        or DIALOG_STATUS['error']).
+        int: The status of the update operation (Status.OK
+        or Status.ERROR).
     """
     try:
         with open(
                 pyproject_path, 'w', encoding='utf8') as f_output:
             f_output.write(output)
-        return DIALOG_STATUS['ok']
+        return Status.OK
     except NotADirectoryError:
         logger.warning(f'Cannot find directory: {Path(pyproject_path).parent}')
-        return DIALOG_STATUS['error']
+        return Status.ERROR
+    except FileNotFoundError:
+        logger.warning(f'Cannot find file: {pyproject_path}')
+        return Status.ERROR
 
 
 def read_json_file(path: str) -> dict:
@@ -79,7 +82,7 @@ def update_json_file(path: str, output: dict) -> int:
 
     Returns:
         int: The number of characters written to the file,
-        or DIALOG_STATUS['error'] if the file is not found.
+        or Status.ERROR if the file is not found.
     """
 
     try:

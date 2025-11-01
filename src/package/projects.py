@@ -5,7 +5,7 @@ from datetime import datetime
 import re
 import subprocess
 
-from psiutils.constants import DIALOG_STATUS
+from psiutils.constants import Status
 from psi_toml.parser import TomlParser
 
 from package import logger
@@ -96,7 +96,7 @@ class Project():
 
     def _get_project_version(self) -> str:
         raw_text = io.read_text_file(Path(self.source_dir, VERSION_FILE))
-        if raw_text == DIALOG_STATUS['error']:
+        if raw_text == Status.ERROR:
             return ''
         return self._get_version_text(raw_text)
 
@@ -191,7 +191,7 @@ class Project():
         self.py_project_missing = False
 
         pyproject_text = io.read_text_file(self.pyproject_path)
-        if pyproject_text == DIALOG_STATUS['error']:
+        if pyproject_text == Status.ERROR:
             self.py_project_missing = True
             print(f'pyproject.toml missing {self.pyproject_path}')
             return default
@@ -211,7 +211,7 @@ class Project():
         """Update project attributes."""
         self.project_version = self._get_project_version()
         self.history = io.read_text_file(self.history_path)
-        if self.history == DIALOG_STATUS['error']:
+        if self.history == Status.ERROR:
             self.history = ''
         self.new_history = self._get_new_history()
         self.pyproject_version = self._get_pyproject_version()
@@ -226,7 +226,7 @@ class Project():
                 line_list = line.split('=')
                 if len(line_list) != 2:
                     print(f'Version format error in {self.version_path}')
-                    return DIALOG_STATUS['error']
+                    return Status.ERROR
                 version_text = f'{line_list[0].strip()} = "{version}"'
 
                 output = self._pyproject_list[:index]
