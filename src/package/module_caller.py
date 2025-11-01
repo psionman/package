@@ -2,7 +2,7 @@ import sys
 
 from psiutils.constants import Mode
 
-from package.projects import ProjectServer
+from package.project_server import ProjectServer
 from package.forms.frm_config import ConfigFrame
 # from package.forms.frm_project_versions import ProjectVersionsFrame
 from package.forms.frm_search import SearchFrame

@@ -10,7 +10,7 @@ from psiutils.treeview import sort_treeview
 from psiutils.menus import Menu, MenuItem
 from psiutils.utilities import window_resize, geometry
 
-from package.projects import ProjectServer
+from package.project_server import ProjectServer
 from package.config import read_config
 from package.build import UV_PUBLISH_TOKEN
 from package.text import Text
