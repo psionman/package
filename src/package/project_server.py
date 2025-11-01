@@ -2,7 +2,7 @@
 from pathlib import Path
 
 from package.config import config
-from package.projects import Project
+from package.project import Project
 from package.env_version import EnvironmentVersion
 from package.constants import DATA_DIR
 import package.projects_io as io

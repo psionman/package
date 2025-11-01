@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 from psiutils.constants import Status
 from package import logger
 
-from package.projects import Project
+from package.project import Project
 from package.modules import check_imports
 
 try:

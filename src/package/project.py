@@ -9,10 +9,9 @@ from psiutils.constants import Status
 from psi_toml.parser import TomlParser
 
 from package import logger
-from package.config import config
 from package.env_version import EnvironmentVersion
 from package.constants import (
-    PYPROJECT_TOML, DATA_DIR, HISTORY_FILE, VERSION_FILE, VERSION_TEXT)
+    PYPROJECT_TOML, HISTORY_FILE, VERSION_FILE, VERSION_TEXT)
 
 import package.projects_io as io
 

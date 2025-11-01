@@ -1,5 +1,5 @@
 import pytest
-from package.projects import Project
+from package.project import Project
 
 # Mock classes for testing
 class MockSerialize:

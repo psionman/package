@@ -8,7 +8,7 @@ from psiutils.constants import PAD, Status, Mode
 from psiutils.buttons import ButtonFrame, IconButton
 from psiutils.utilities import window_resize, geometry
 
-from package.projects import Project
+from package.project import Project
 from package.config import read_config
 from package.text import Text
 from package import logger
