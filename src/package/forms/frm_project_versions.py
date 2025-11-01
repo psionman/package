@@ -324,22 +324,7 @@ class ProjectVersionsFrame():
             messagebox.showinfo('', 'Package updated')
 
         self.refresh = True
-
-    def _get_venv_python(self) -> str:
-        env_version = self.project.env_versions[self.version.get()]
-        parts = Path(env_version.dir).parts
-        if '.venv' in parts:
-            # TODO This doesn't seem to work!!
-            index = parts.index('.venv')
-            source_dir = Path(*parts[:index])
-            return os.path.join(source_dir, '.venv', 'bin', 'python')
-        if '.pyenv' in parts:
-            index = parts.index('versions')
-            source_dir = Path(*parts[:index+2])
-            return os.path.join(source_dir, 'bin', 'python')
-
-        messagebox.showerror('', 'Virtualenv not found')
-        return ''
+        self._populate_versions_frame()
 
     def _build_project(self, *args) -> None:
         if not UV_PUBLISH_TOKEN:
