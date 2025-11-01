@@ -22,6 +22,7 @@ from psiutils.utilities import window_resize, geometry
 from package.project import Project
 from package.config import read_config
 from package.compare import compare
+from package.project_utilities import update_project
 from package.build import UV_PUBLISH_TOKEN
 from package import logger
 
@@ -314,47 +315,13 @@ class ProjectVersionsFrame():
         self._populate_versions_frame()
 
     def _update_project(self) -> None:
-        logger.info(
-            "Update .venv dependencies",
-            dependency=self.version.get(),
-            project=self.project.name,
-        )
-        venv_python = self._get_venv_python()
-
-        # Use the venv's python to run pip
-        returncode = 0
-
-        # ensure pip is installed
-        command = [venv_python, '-m', 'ensurepip', '--upgrade']
-
-        result = subprocess.run(command, check=True)
-        returncode += result.returncode
-        logger.info(
-            "Update .venv dependencies install pip",
-            dependency=self.version.get(),
-            project=self.project.name,
-        )
-
-        # upgrade package
-        name = self.project.name
-        command = [venv_python, '-m', 'pip', 'install', '-U', name]
-        result = subprocess.run(command, check=True)
-        returncode += result.returncode
+        env_version = self.project.env_versions[self.version.get()]
+        returncode = update_project(
+            self.version.get(), env_version, self.project.name)
 
         if returncode == 0:
             self._populate_versions_frame()
             messagebox.showinfo('', 'Package updated')
-            logger.info(
-                "Update .venv dependencies update package",
-                dependency=self.version.get(),
-                project=self.project.name,
-            )
-        else:
-            logger.warning(
-                "Update .venv dependencies update package failed",
-                dependency=self.project.env_versions[self.version.get()],
-                project=self.project.name,
-            )
 
         self.refresh = True
 
